@@ -1,4 +1,4 @@
-aimport nmap # import nmap.py module
+import nmap # import nmap.py module
 import sys
 import os
 import json
