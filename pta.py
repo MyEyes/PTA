@@ -3,7 +3,7 @@ import sys
 import os
 import json
 
-def clrs():
+def clrs():.
     os.system('clear')
 
 def create_p(name, ip, prot, ports):
