@@ -12,7 +12,6 @@ git checkout master
 
 // save pw
 git config credential.helper store
-git pull
 
 // merge branches: (dmgr2->master)
 git checkout dmgr2      # gets you "on branch dmgr2"
