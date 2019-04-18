@@ -2,8 +2,21 @@ import nmap # import nmap.py module
 import sys
 import os
 import json
+
 def clrs():
     os.system('clear')
+
+def create_p(name, ip, prot, ports):
+    data = {}
+    data['project'] = []
+    data['project'].append({
+    'name': name,
+    'ip': ip,
+    'prot': prot,   # 0 => tcp / 1 => udp
+    'ports': ports
+    })
+    with open(name + ".ptap", 'w') as outfile:
+        json.dump(data, outfile)
 
 clrs();
 print("PTA - PenTestAutomatizer version 0.1 alpha\n") # to run:  python3 /root/Documents/pythonfolder/hello.py
@@ -26,6 +39,7 @@ if eingabe == "0":
     sys.exit()
 elif eingabe == "1":
     clrs();
+    create_p("lol", "1.1.1.1", 0, 31337)
     print("programm start")
     print("Give the name of your project:")
 elif eingabe == "2":
