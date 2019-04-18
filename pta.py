@@ -1,4 +1,3 @@
-lol
 import nmap # import nmap.py module
 import sys
 import os
