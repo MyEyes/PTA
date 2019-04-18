@@ -12,7 +12,7 @@ def create_p(name, ip, prot, ports):
     data['project'].append({
     'name': name,
     'ip': ip,
-    'prot': prot,   # 0 => tcp / 1 => udp
+    'prot': prot,   # 0 => tcp / 1 => udp 
     'ports': ports
     })
     with open(name + ".ppta", 'w') as outfile:
