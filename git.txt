@@ -1,0 +1,23 @@
+// first
+git clone https://github.com:/111tux/PTA
+change into directory
+
+// push your changes to github
+git add pta.py
+git commit -m "lol"
+git push
+
+// change branch
+git checkout branch
+branch=f,m,master
+
+
+// save pw
+git config credential.helper store
+git pull
+
+// merge branches: (dmgr2->master)
+git checkout dmgr2      # gets you "on branch dmgr2"
+git fetch origin        # gets you up to date with origin
+git merge origin/master
+git push
