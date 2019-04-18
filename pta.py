@@ -15,7 +15,7 @@ def create_p(name, ip, prot, ports):
     'prot': prot,   # 0 => tcp / 1 => udp
     'ports': ports
     })
-    with open(name + ".ptap", 'w') as outfile:
+    with open(name + ".ppta", 'w') as outfile:
         json.dump(data, outfile)
 
 clrs();
