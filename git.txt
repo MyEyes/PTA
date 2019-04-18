@@ -8,9 +8,7 @@ git commit -m "lol"
 git push
 
 // change branch
-git checkout branch
-branch=f,m,master
-
+git checkout master
 
 // save pw
 git config credential.helper store

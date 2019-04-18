@@ -67,3 +67,4 @@ nmap -sS -sV -sC -Pn -n -vv -O -p1-65535 -oA nmapscan_full_tcp_$IP <ip | domain>
 -oA                 // <basename>: Output in the three major formats at once
 
 """
+lol
