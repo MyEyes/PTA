@@ -8,13 +8,14 @@ git commit -m "lol"
 git push
 
 // change branch
-git checkout master
+git checkout branch
+branch=f,m,master
+
 
 // save pw
 git config credential.helper store
 
-// merge branches: (dmgr2->master)
-git checkout dmgr2      # gets you "on branch dmgr2"
-git fetch origin        # gets you up to date with origin
-git merge origin/master
-git push
+// merge branches:
+git checkout BranchB
+git merge BranchA
+git push origin BranchB
