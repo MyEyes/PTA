@@ -1,3 +1,4 @@
+lol
 import nmap # import nmap.py module
 import sys
 import os
@@ -23,7 +24,7 @@ print("3     : delete project")
 
 eingabe=input()
 if eingabe == "0":
-    sys.exit()  
+    sys.exit()
 elif eingabe == "1":
     clrs();
     print("programm start")
@@ -33,7 +34,7 @@ elif eingabe == "2":
     print("programm1 ausgewählt")
 elif eingabe == "3":
     clrs();
-    print("programm2 ausgewählt")          
+    print("programm2 ausgewählt")
 else:
     print("please enter a valid value")
     eingabe = input("your input:")
