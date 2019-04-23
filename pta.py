@@ -15,8 +15,14 @@ def create_p(name, ip, prot, ports):
     'prot': prot,   # 0 => tcp / 1 => udp
     'ports': ports
     })
-    with open(name + ".ppta", 'w') as outfile:
+    with open("./proj/" + name + ".ppta", 'w') as outfile:
         json.dump(data, outfile)
+
+def load_proj(name):
+    with open("./proj/" + name + ".ppta") as json_file:
+        data = json.load(json_file)
+        for p in data['project']:
+            print('Name: ' + p['name'])
 
 clrs();
 print("PTA - PenTestAutomatizer version 0.1 alpha\n") # to run:  python3 /root/Documents/pythonfolder/hello.py
@@ -30,7 +36,7 @@ print("PPP          TTT   AAAA     AAAA\n")
 
 print("Menu:")
 print("0     : exit programm")
-print("1     : start programm")
+print("1     : create project")
 print("2     : load project")
 print("3     : delete project")
 
@@ -39,15 +45,22 @@ if eingabe == "0":
     sys.exit()
 elif eingabe == "1":
     clrs();
-    create_p("lol", "1.1.1.1", 0, 31337)
-    print("programm start")
-    print("Give the name of your project:")
+    print("create project")
+    i_proj  = input("project name: ")
+    i_ip    = input("ip (range): ")
+    i_prot  = input("TCP (0) or UDP (1): ")
+    i_port  = input("ports : ")
+
+    create_p(i_proj, i_ip, i_prot, i_port)
 elif eingabe == "2":
     clrs();
-    print("programm1 ausgewählt")
+    i_proj  = input("proj: ")
+    load_proj(i_proj)
+
 elif eingabe == "3":
     clrs();
     print("programm2 ausgewählt")
+    
 else:
     print("please enter a valid value")
     eingabe = input("your input:")
