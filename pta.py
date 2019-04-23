@@ -1,4 +1,4 @@
-import nmap # import nmap.py module
+import nmap
 import sys
 import os
 import json
@@ -6,33 +6,47 @@ import json
 def clrs():
     os.system('clear')
 
-def create_p(name, ip, prot, ports):
+def p_logo():
+    print("PTA - PenTestAutomatizer version 0.1 alpha\n") # to run:  python3 /root/Documents/pythonfolder/hello.py
+    print("PPPPPP    TTTTTTTTT      A")
+    print("PP  PPP   TTTTTTTTT     AAA")
+    print("PP  PPP      TTT       AA AA")
+    print("PPPPPP       TTT      AA   AA")
+    print("PPP          TTT     AAAAAAAAA")
+    print("PPP          TTT    AAAAAAAAAAA")
+    print("PPP          TTT   AAAA     AAAA\n")
+
+def create_p(name, hosts, prot, ports):
+    global data
     data = {}
     data['project'] = []
     data['project'].append({
     'name': name,
-    'ip': ip,
-    'prot': prot,   # 0 => tcp / 1 => udp
+    'hosts': hosts,
+    'prot': prot,   # 0 => tcp / 1 => udp / 2 => both
     'ports': ports
     })
-    with open("./proj/" + name + ".ppta", 'w') as outfile:
+    with open("./proj/" + name + ".pta", 'w') as outfile:
         json.dump(data, outfile)
 
 def load_proj(name):
-    with open("./proj/" + name + ".ppta") as json_file:
+    global data
+    with open("./proj/" + name + ".pta") as json_file:
         data = json.load(json_file)
-        for p in data['project']:
-            print('Name: ' + p['name'])
+        #for p in data['project']:
+            #print('Name: ' + p['name'])
 
-clrs();
-print("PTA - PenTestAutomatizer version 0.1 alpha\n") # to run:  python3 /root/Documents/pythonfolder/hello.py
-print("PPPPPP    TTTTTTTTT      A")
-print("PP  PPP   TTTTTTTTT     AAA")
-print("PP  PPP      TTT       AA AA")
-print("PPPPPP       TTT      AA   AA")
-print("PPP          TTT     AAAAAAAAA")
-print("PPP          TTT    AAAAAAAAAAA")
-print("PPP          TTT   AAAA     AAAA\n")
+def run_nmap():
+    global data
+    nm = nmap.PortScanner() # init
+    nm.scan(hosts=data['project'][0]['hosts'], ports=data['project'][0]['ports'])
+    print(nm.scan_result())
+
+
+# start
+clrs()
+p_logo()
+
 
 print("Menu:")
 print("0     : exit programm")
@@ -40,33 +54,74 @@ print("1     : create project")
 print("2     : load project")
 print("3     : delete project")
 
-eingabe=input()
-if eingabe == "0":
+i_nr=input()
+######################################################################
+if i_nr == "0":
     sys.exit()
-elif eingabe == "1":
-    clrs();
+######################################################################
+elif i_nr == "1":
+    clrs()
     print("create project")
     i_proj  = input("project name: ")
-    i_ip    = input("ip (range): ")
-    i_prot  = input("TCP (0) or UDP (1): ")
+    i_hosts = input("hosts (ip): ")
+    i_prot  = input("TCP (0) or UDP (1) or BOTH (2): ")
     i_port  = input("ports : ")
 
-    create_p(i_proj, i_ip, i_prot, i_port)
-elif eingabe == "2":
-    clrs();
+    create_p(i_proj, i_hosts, i_prot, i_port)
+######################################################################
+elif i_nr == "2":
+    clrs()
+    p_logo()
     i_proj  = input("proj: ")
-    load_proj(i_proj)
 
-elif eingabe == "3":
-    clrs();
-    print("programm2 ausgewählt")
-    
+    load_proj(i_proj)
+    clrs()
+    p_logo()
+
+    print("actual project: " + data['project'][0]['name'])
+    print("options: ")
+    print("[0] scan all")
+    print("[x] show report")
+    print("[x] change modules")
+    i_nr = input("option: ")
+
+    if i_nr == "0":
+        run_nmap()
+
+######################################################################
+elif i_nr == "3":
+    clrs()
+    print("which project would you like to delete?")
+
+    path = './proj/'
+    dirs = os.listdir(path) # Ausgabe aller Projektnamen
+    i=0
+    for file in dirs:
+        print("[" + str(i) + "] " + file.replace('.pta', ''))
+        i = i + 1
+
+
+    i_nr = input("your input:") #löschendes projekt auswählen
+
+    i=0
+    for file in dirs:
+        if i==int(i_nr):
+            i_proj=file.replace('.pta', '')
+        i = i + 1
+
+    print(i_proj)
+
+
+    if os.path.exists("./proj/" + i_proj + ".pta"):
+       os.remove("./proj/" + i_proj + ".pta")
+    print("the project " + i_proj + " has been removed") # projekt wird gelöscht
+######################################################################
 else:
     print("please enter a valid value")
-    eingabe = input("your input:")
-    clrs();
+    i_nr = input("your input: ")
+    clrs()
 
-"""erklärung fü uns
+"""erklärung für uns
 nmap -sS -sV -sC -Pn -n -vv -O -p1-65535 -oA nmapscan_full_tcp_$IP <ip | domain>
 -sS                 // TCP SYN
 -sV                 // Probe open ports to determine service/version info
