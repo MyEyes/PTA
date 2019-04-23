@@ -17,25 +17,17 @@ def p_logo():
     print("PPP          TTT    AAAAAAAAAAA")
     print("PPP          TTT   AAAA     AAAA\n")
 
-def create_p(name, hosts, prot, ports):
+def create_p(name, hosts, ports, prots):
     global data
-    data = {}
-    data['project'] = []
-    data['project'].append({
-    'name': name,
-    'hosts': hosts,
-    'prot': prot,   # 0 => tcp / 1 => udp / 2 => both
-    'ports': ports
-    })
-    with open("./proj/" + name + ".pta", 'w') as outfile:
-        json.dump(data, outfile)
+    c = conn.cursor()
+    c.execute("INSERT INTO project  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
+    conn.commit()
 
-def load_proj(name):
+def load_proj():
     global data
-    with open("./proj/" + name + ".pta") as json_file:
-        data = json.load(json_file)
-        #for p in data['project']:
-            #print('Name: ' + p['name'])
+    c = conn.cursor()
+    for row in c.execute("SELECT * FROM projects ORDER BY id"):
+        print(row)
 
 def run_nmap():
     global data
@@ -54,6 +46,34 @@ def output_projname():
 # start
 clrs()
 p_logo()
+
+#conn = None
+
+
+if os.path.exists("./pta.sqlite"):
+    print("DB exists")
+    conn = sqlite3.connect('pta.sqlite')
+else:
+    sqlite3.connect('pta.sqlite')
+    conn = sqlite3.connect("./pta.sqlite")
+    c = conn.cursor()
+    c.execute("CREATE TABLE 'project' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"\
+        "'name'  TEXT NOT NULL UNIQUE, "\
+        "'hosts' TEXT, "\
+        "'ports' TEXT, "\
+        "'prots' INTEGER);")
+    c.execute("CREATE TABLE 'r_nmap' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"\
+        "'host'  TEXT NOT NULL UNIQUE, "\
+        "'protocol' TEXT, "\
+        "'port' INTEGER, "\
+        "'name' TEXT,"\
+        "'state' TEXT,"\
+        "'product' TEXT,"\
+        "'extrainfo' TEXT,"\
+        "'reason' TEXT,"\
+        "'version' TEXT,"\
+        "'conf' TEXT);")
+    conn.commit()
 
 
 print("Menu:")
@@ -76,13 +96,13 @@ elif i_nr == "1":
     i_prot  = input("TCP (0) or UDP (1) or BOTH (2): ")
     i_port  = input("ports : ")
 
-    create_p(i_proj, i_hosts, i_prot, i_port)
+    create_p(i_proj, i_hosts, i_port, i_prot)
 ######################################################################
 elif i_nr == "2": # Funktion: Projekte laden
     clrs()
     p_logo()
 
-    output_projname()
+
 
     print("which project would you like to load?")
     i_proj  = input("proj: ") # projekt welches geladen werden soll eingeben
@@ -107,35 +127,35 @@ elif i_nr == "3": # Funktion: Projekt löschen
     p_logo()
     print("which project would you like to delete?")
 
-output_projname()
+    output_projname()
 
-i_nr = input("your input:") #löschendes projekt auswählen
+    i_nr = input("your input:") #löschendes projekt auswählen
 
-i=0
-i_proj=None
-for file in dirs:
-        if i==int(i_nr):
-            i_proj=file.replace('.pta', '')
-        i = i + 1
+    i=0
+    i_proj=None
+    for file in dirs:
+            if i==int(i_nr):
+                i_proj=file.replace('.pta', '')
+            i = i + 1
 
-if i_proj != None:
-    if os.path.exists("./proj/" + i_proj + ".pta"):
-        os.remove("./proj/" + i_proj + ".pta")
-        print("the project " + i_proj + " has been removed") # projekt wird gelöscht
-else:
-    print("The Project " + i_nr + " does not exist")
+    if i_proj != None:
+        if os.path.exists("./proj/" + i_proj + ".pta"):
+            os.remove("./proj/" + i_proj + ".pta")
+            print("the project " + i_proj + " has been removed") # projekt wird gelöscht
+    else:
+        print("The Project " + i_nr + " does not exist")
 ######################################################################
 
-"""erklärung für uns
-nmap -sS -sV -sC -Pn -n -vv -O -p1-65535 -oA nmapscan_full_tcp_$IP <ip | domain>
--sS                 // TCP SYN
--sV                 // Probe open ports to determine service/version info
--sC                 // equivalent to --script=default
---script=<yolo>     // <yolo> is a comma separated list of directories, script-files or script-categories
--Pn                 // Treat all hosts as online -- skip host discovery
--n                  // -n/-R: Never do DNS resolution/Always resolve [default: sometimes]
--v                  // Increase verbosity level (use -vv or more for greater effect)
--O                  // -O: Enable OS detection
--p1-65535           // <port ranges>: Only scan specified ports; Example: -p1-65535;
--oA                 // <basename>: Output in the three major formats at once
-"""
+#"""erklärung für uns
+#nmap -sS -sV -sC -Pn -n -vv -O -p1-65535 -oA nmapscan_full_tcp_$IP <ip | domain>
+#-sS                 // TCP SYN
+#-sV                 // Probe open ports to determine service/version info
+#-sC                 // equivalent to --script=default
+#--script=<yolo>     // <yolo> is a comma separated list of directories, script-files or script-categories
+#-Pn                 // Treat all hosts as online -- skip host discovery
+#-n                  // -n/-R: Never do DNS resolution/Always resolve [default: sometimes]
+#-v                  // Increase verbosity level (use -vv or more for greater effect)
+#-O                  // -O: Enable OS detection
+#-p1-65535           // <port ranges>: Only scan specified ports; Example: -p1-65535;
+#-oA                 // <basename>: Output in the three major formats at once
+#"""
