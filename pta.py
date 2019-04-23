@@ -23,17 +23,22 @@ def create_p(name, hosts, ports, prots):
     c.execute("INSERT INTO project  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
     conn.commit()
 
-def load_proj():
-    global data
+def load_proj(name):
+    global proj
     c = conn.cursor()
-    for row in c.execute("SELECT * FROM projects ORDER BY id"):
-        print(row)
+    for row in c.execute("SELECT * FROM project WHERE name='" + name + "'"):
+        #proj = [row['id'], row['name'], row['hosts'], row['ports'], row['prots']]
+        proj = row
 
 def run_nmap():
     global data
     nm = nmap.PortScanner() # init
-    nm.scan(hosts=data['project'][0]['hosts'], ports=data['project'][0]['ports'])
-    print(nm.scan_result())
+    nm.scan(hosts=proj[1], ports=proj[2])
+    print(nm.csv())
+
+    c = conn.cursor()
+    c.execute("INSERT INTO r_nmap  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
+
 
 def output_projname():
     path = './proj/'
@@ -46,9 +51,8 @@ def output_projname():
 # start
 clrs()
 p_logo()
-
-#conn = None
-
+conn = None
+proj = None
 
 if os.path.exists("./pta.sqlite"):
     print("DB exists")
@@ -63,7 +67,8 @@ else:
         "'ports' TEXT, "\
         "'prots' INTEGER);")
     c.execute("CREATE TABLE 'r_nmap' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"\
-        "'host'  TEXT NOT NULL UNIQUE, "\
+        "'pid'  INTEGER, "\
+        "'host'  TEXT, "\
         "'protocol' TEXT, "\
         "'port' INTEGER, "\
         "'name' TEXT,"\
@@ -102,7 +107,11 @@ elif i_nr == "2": # Funktion: Projekte laden
     clrs()
     p_logo()
 
-
+    i=0
+    c = conn.cursor()
+    for row in c.execute("SELECT * FROM project ORDER BY id"):
+        print("[" + str(i) + "] " + row[1])
+        i = i + 1
 
     print("which project would you like to load?")
     i_proj  = input("proj: ") # projekt welches geladen werden soll eingeben
@@ -111,7 +120,7 @@ elif i_nr == "2": # Funktion: Projekte laden
     clrs()
     p_logo()
 
-    print("actual project: " + data['project'][0]['name'])
+    print("actual project: " + proj[2])
     print("options: ")
     print("[0] scan all")
     print("[x] show report")
@@ -127,23 +136,20 @@ elif i_nr == "3": # Funktion: Projekt löschen
     p_logo()
     print("which project would you like to delete?")
 
-    output_projname()
+    i=0
+    c = conn.cursor()
+    for row in c.execute("SELECT * FROM project ORDER BY id"):
+        print("[" + str(i) + "] " + row[1])
+        i = i + 1
 
     i_nr = input("your input:") #löschendes projekt auswählen
 
-    i=0
-    i_proj=None
-    for file in dirs:
-            if i==int(i_nr):
-                i_proj=file.replace('.pta', '')
-            i = i + 1
 
-    if i_proj != None:
-        if os.path.exists("./proj/" + i_proj + ".pta"):
-            os.remove("./proj/" + i_proj + ".pta")
-            print("the project " + i_proj + " has been removed") # projekt wird gelöscht
-    else:
-        print("The Project " + i_nr + " does not exist")
+    sql = "DELETE FROM project WHERE name='" + i_nr + "'"
+    c = conn.cursor()
+    c.execute(sql)
+    conn.commit()
+    print(i_nr + " was delete")
 ######################################################################
 
 #"""erklärung für uns
