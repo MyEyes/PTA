@@ -112,9 +112,12 @@ elif i_nr == "3":
     print(i_proj)
 
 
-    if os.path.exists("./proj/" + i_proj + ".pta"):
-       os.remove("./proj/" + i_proj + ".pta")
-    print("the project " + i_proj + " has been removed") # projekt wird gelöscht
+    if i_proj != None:
+        if os.path.exists("./proj/" + i_proj + ".pta"):
+            os.remove("./proj/" + i_proj + ".pta")
+            print("the project " + i_proj + " has been removed") # projekt wird gelöscht
+    else:
+        print("The Project " + i_nr + " does not exist")
 ######################################################################
 else:
     print("please enter a valid value")
