@@ -2,6 +2,7 @@ import nmap
 import sys
 import os
 import json
+import sqlite3
 
 def clrs():
     os.system('clear')
@@ -42,6 +43,13 @@ def run_nmap():
     nm.scan(hosts=data['project'][0]['hosts'], ports=data['project'][0]['ports'])
     print(nm.scan_result())
 
+def output_projname():
+    path = './proj/'
+    dirs = os.listdir(path) # Ausgabe aller Projektnamen
+    i=0
+    for file in dirs:
+        print("[" + str(i) + "] " + file.replace('.pta', ''))
+        i = i + 1
 
 # start
 clrs()
@@ -61,6 +69,7 @@ if i_nr == "0":
 ######################################################################
 elif i_nr == "1":
     clrs()
+    p_logo()
     print("create project")
     i_proj  = input("project name: ")
     i_hosts = input("hosts (ip): ")
@@ -69,10 +78,14 @@ elif i_nr == "1":
 
     create_p(i_proj, i_hosts, i_prot, i_port)
 ######################################################################
-elif i_nr == "2":
+elif i_nr == "2": # Funktion: Projekte laden
     clrs()
     p_logo()
-    i_proj  = input("proj: ")
+
+    output_projname()
+
+    print("which project would you like to load?")
+    i_proj  = input("proj: ") # projekt welches geladen werden soll eingeben
 
     load_proj(i_proj)
     clrs()
@@ -89,40 +102,29 @@ elif i_nr == "2":
         run_nmap()
 
 ######################################################################
-elif i_nr == "3":
+elif i_nr == "3": # Funktion: Projekt löschen
     clrs()
+    p_logo()
     print("which project would you like to delete?")
 
-    path = './proj/'
-    dirs = os.listdir(path) # Ausgabe aller Projektnamen
-    i=0
-    for file in dirs:
-        print("[" + str(i) + "] " + file.replace('.pta', ''))
-        i = i + 1
+output_projname()
 
+i_nr = input("your input:") #löschendes projekt auswählen
 
-    i_nr = input("your input:") #löschendes projekt auswählen
-
-    i=0
-    for file in dirs:
+i=0
+i_proj=None
+for file in dirs:
         if i==int(i_nr):
             i_proj=file.replace('.pta', '')
         i = i + 1
 
-    print(i_proj)
-
-
-    if i_proj != None:
-        if os.path.exists("./proj/" + i_proj + ".pta"):
-            os.remove("./proj/" + i_proj + ".pta")
-            print("the project " + i_proj + " has been removed") # projekt wird gelöscht
-    else:
-        print("The Project " + i_nr + " does not exist")
-######################################################################
+if i_proj != None:
+    if os.path.exists("./proj/" + i_proj + ".pta"):
+        os.remove("./proj/" + i_proj + ".pta")
+        print("the project " + i_proj + " has been removed") # projekt wird gelöscht
 else:
-    print("please enter a valid value")
-    i_nr = input("your input: ")
-    clrs()
+    print("The Project " + i_nr + " does not exist")
+######################################################################
 
 """erklärung für uns
 nmap -sS -sV -sC -Pn -n -vv -O -p1-65535 -oA nmapscan_full_tcp_$IP <ip | domain>
@@ -136,5 +138,4 @@ nmap -sS -sV -sC -Pn -n -vv -O -p1-65535 -oA nmapscan_full_tcp_$IP <ip | domain>
 -O                  // -O: Enable OS detection
 -p1-65535           // <port ranges>: Only scan specified ports; Example: -p1-65535;
 -oA                 // <basename>: Output in the three major formats at once
-
 """
