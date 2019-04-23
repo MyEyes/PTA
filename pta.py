@@ -7,6 +7,16 @@ import sqlite3
 def clrs():
     os.system('clear')
 
+def sqll_ins(table, arr):
+    cmd = "INSERT INTO " + table + "VALUES (NULL"
+    for entr in arr:
+        cmd = cmd + ", '" + entr + "'"
+    cmd = cmd + ")"
+
+    c = conn.cursor(cmd)
+    c.execute(cmd)
+    conn.commit()
+
 def p_logo():
     print("PTA - PenTestAutomatizer version 0.1 alpha\n") # to run:  python3 /root/Documents/pythonfolder/hello.py
     print("PPPPPP    TTTTTTTTT      A")
@@ -34,7 +44,7 @@ def run_nmap():
     global data
     nm = nmap.PortScanner() # init
     nm.scan(hosts=proj[1], ports=proj[2])
-    print(nm.csv())
+    print(nm.cslv())
 
     c = conn.cursor()
     c.execute("INSERT INTO r_nmap  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
