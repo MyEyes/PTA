@@ -3,8 +3,7 @@ import sys
 import os
 import json
 import sqlite3
-import curses
-
+import csv
 
 
 # GLOBALS
@@ -66,22 +65,23 @@ def run_nmap():
         sqll_ins("r_nmap", row.split(';'))
 
 
-def run_nikto():
+def run_nikto(hostname, port):
     global proj
+    os.system("nikto -Display V -o _tmp_nikto.csv -Format csv -Tuning 9 -h " + hostname)
+    _file = open('_tmp_nikto.csv', 'r')
+
+    reader = csv.reader(open('_tmp_nikto.csv', 'r'), delimiter=',')
+    itercsv = iter(reader)
+    next(itercsv)
+    for row in itercsv:
+        sqll_ins("r_nikto", row)
+
+    # delete
 
 
 # start
 clrs()
 p_logo()
-
-w=curses.initscr()
-w.erase()
-w.addstr("a")
-w.addstr("b")
-w.addstr("c")
-w.addstr("d")
-w.refresh()
-curses.endwin()
 
 if os.path.exists("./pta.sqlite"):
     print("DB exists")
@@ -110,6 +110,15 @@ else:
         "'version' TEXT,"\
         "'conf' TEXT,"\
         "'cpe'  TEXT);")
+    c.execute("CREATE TABLE 'r_nikto' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"\
+        "'pid'  INTEGER, "\
+        "'2'  TEXT, "\
+        "'3' TEXT, "\
+        "'4' TEXT, "\
+        "'5' TEXT,"\
+        "'6' TEXT, "\
+        "'7' TEXT, "\
+        "'8' TEXT);")
     conn.commit()
 
 
@@ -160,7 +169,12 @@ elif i_nr == "2": # Funktion: Projekte laden
     i_nr = input("option: ")
 
     if i_nr == "0":
-        run_nmap()
+        run_nikto("127.0.0.1", "80")
+        #run_nmap()
+        ###########
+
+        ###########
+
 
 ######################################################################
 elif i_nr == "3": # Funktion: Projekt löschen
