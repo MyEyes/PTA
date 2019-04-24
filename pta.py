@@ -4,18 +4,24 @@ import os
 import json
 import sqlite3
 
+# convert csv to array: array.split(';', 0)
+
+
 def clrs():
     os.system('clear')
 
 def sqll_ins(table, arr):
-    cmd = "INSERT INTO " + table + "VALUES (NULL"
+    global conn
+    cmd = "INSERT INTO " + table + " VALUES (NULL"
     for entr in arr:
         cmd = cmd + ", '" + entr + "'"
     cmd = cmd + ")"
 
-    c = conn.cursor(cmd)
+    print(cmd)
+    c = conn.cursor()
     c.execute(cmd)
     conn.commit()
+
 
 def p_logo():
     print("PTA - PenTestAutomatizer version 0.1 alpha\n") # to run:  python3 /root/Documents/pythonfolder/hello.py
@@ -29,9 +35,10 @@ def p_logo():
 
 def create_p(name, hosts, ports, prots):
     global data
-    c = conn.cursor()
-    c.execute("INSERT INTO project  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
-    conn.commit()
+    sqll_ins("project", [name, hosts, ports, prots])
+    #c = conn.cursor()
+    #c.execute("INSERT INTO project  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
+    #conn.commit()
 
 def load_proj(name):
     global proj
@@ -41,7 +48,7 @@ def load_proj(name):
         proj = row
 
 def run_nmap():
-    global data
+    global proj
     nm = nmap.PortScanner() # init
     nm.scan(hosts=proj[1], ports=proj[2])
     print(nm.cslv())
@@ -49,14 +56,9 @@ def run_nmap():
     c = conn.cursor()
     c.execute("INSERT INTO r_nmap  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
 
+de run_nikto():
+    global proj
 
-def output_projname():
-    path = './proj/'
-    dirs = os.listdir(path) # Ausgabe aller Projektnamen
-    i=0
-    for file in dirs:
-        print("[" + str(i) + "] " + file.replace('.pta', ''))
-        i = i + 1
 
 # start
 clrs()
@@ -75,7 +77,7 @@ else:
         "'name'  TEXT NOT NULL UNIQUE, "\
         "'hosts' TEXT, "\
         "'ports' TEXT, "\
-        "'prots' INTEGER);")
+        "'prots' TEXT);")
     c.execute("CREATE TABLE 'r_nmap' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"\
         "'pid'  INTEGER, "\
         "'host'  TEXT, "\
