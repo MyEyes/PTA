@@ -3,25 +3,16 @@ import sys
 import os
 import json
 import sqlite3
+import curses
 
-# convert csv to array: array.split(';', 0)
 
+
+# GLOBALS
+conn = None
+proj = None
 
 def clrs():
     os.system('clear')
-
-def sqll_ins(table, arr):
-    global conn
-    cmd = "INSERT INTO " + table + " VALUES (NULL"
-    for entr in arr:
-        cmd = cmd + ", '" + entr + "'"
-    cmd = cmd + ")"
-
-    print(cmd)
-    c = conn.cursor()
-    c.execute(cmd)
-    conn.commit()
-
 
 def p_logo():
     print("PTA - PenTestAutomatizer version 0.1 alpha\n") # to run:  python3 /root/Documents/pythonfolder/hello.py
@@ -35,10 +26,10 @@ def p_logo():
 
 def create_p(name, hosts, ports, prots):
     global data
-    sqll_ins("project", [name, hosts, ports, prots])
-    #c = conn.cursor()
-    #c.execute("INSERT INTO project  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
-    #conn.commit()
+    #sqll_ins("project", [name, hosts, ports, prots])
+    c = conn.cursor()
+    c.execute("INSERT INTO project  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
+    conn.commit()
 
 def load_proj(name):
     global proj
@@ -47,24 +38,50 @@ def load_proj(name):
         #proj = [row['id'], row['name'], row['hosts'], row['ports'], row['prots']]
         proj = row
 
+
+def sqll_ins(table, arr):
+    global conn
+    cmd = "INSERT INTO " + table + " VALUES (NULL, " + str(proj[0])
+    for entr in arr:
+        cmd = cmd + ", '" + entr + "'"
+    cmd = cmd + ")"
+
+    print(cmd)
+    c = conn.cursor()
+    c.execute(cmd)
+    conn.commit()
+
+
 def run_nmap():
     global proj
+    print(proj)
     nm = nmap.PortScanner() # init
-    nm.scan(hosts=proj[1], ports=proj[2])
-    print(nm.cslv())
+    nm.scan(hosts=proj[2], ports=proj[3])
+    #sqll_ins("r_nmap", nm.csv().split(';', 0))
 
-    c = conn.cursor()
-    c.execute("INSERT INTO r_nmap  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
+    #print(nm.csv())
+    iternmcsv = iter(nm.csv().splitlines())
+    next(iternmcsv)
+    for row in iternmcsv:
+        sqll_ins("r_nmap", row.split(';'))
 
-de run_nikto():
+
+def run_nikto():
     global proj
 
 
 # start
 clrs()
 p_logo()
-conn = None
-proj = None
+
+w=curses.initscr()
+w.erase()
+w.addstr("a")
+w.addstr("b")
+w.addstr("c")
+w.addstr("d")
+w.refresh()
+curses.endwin()
 
 if os.path.exists("./pta.sqlite"):
     print("DB exists")
@@ -81,15 +98,18 @@ else:
     c.execute("CREATE TABLE 'r_nmap' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"\
         "'pid'  INTEGER, "\
         "'host'  TEXT, "\
+        "'hostname'  TEXT, "\
+        "'hostname_type'  TEXT, "\
         "'protocol' TEXT, "\
-        "'port' INTEGER, "\
+        "'port' TEXT, "\
         "'name' TEXT,"\
         "'state' TEXT,"\
         "'product' TEXT,"\
         "'extrainfo' TEXT,"\
         "'reason' TEXT,"\
         "'version' TEXT,"\
-        "'conf' TEXT);")
+        "'conf' TEXT,"\
+        "'cpe'  TEXT);")
     conn.commit()
 
 
@@ -126,7 +146,7 @@ elif i_nr == "2": # Funktion: Projekte laden
         i = i + 1
 
     print("which project would you like to load?")
-    i_proj  = input("proj: ") # projekt welches geladen werden soll eingeben
+    i_proj  = input("proj: ")
 
     load_proj(i_proj)
     clrs()
