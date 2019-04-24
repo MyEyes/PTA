@@ -79,6 +79,23 @@ def run_nikto(hostname, port):
     # delete
 
 
+def run_cmd(mid, hostname, port):
+    global proj
+    global _mod
+
+    os.system(_mod[mid][2].replace("$ip", hostname).replace("$port", port))
+    _file = open('tmp.csv', 'r')
+
+    reader = csv.reader(open('_tmp_nikto.csv', 'r'), delimiter=',')
+    itercsv = iter(reader)
+    next(itercsv)
+    for row in itercsv:
+        sqll_ins("r_nikto", row)
+
+
+    os.remove("_tmp_" + id + ".csv")
+
+
 # start
 clrs()
 p_logo()
@@ -121,6 +138,16 @@ else:
         "'8' TEXT);")
     conn.commit()
 
+
+### LOAD cfg
+_mod = []
+
+with open('modules.cfg') as fp:
+    i = 0
+    for row in fp:
+        a = row.split(';')
+        _mod.append(row.split(';'))
+###
 
 print("Menu:")
 print("0     : exit programm")
@@ -169,8 +196,8 @@ elif i_nr == "2": # Funktion: Projekte laden
     i_nr = input("option: ")
 
     if i_nr == "0":
-        run_nikto("127.0.0.1", "80")
-        #run_nmap()
+        #run_nikto("127.0.0.1", "80")
+        run_nmap()
         ###########
 
         ###########
