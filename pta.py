@@ -1,14 +1,23 @@
 import nmap
 import sys
 import os
-import json
 import sqlite3
 import csv
+
+# TODO
+# - delete database & reload modules.cfg
+#   -> sqlite datei löschen und programm neustarten
+# - zurück gehen im terminal?
+# nach dem das projekt geladen wurde:
+#   change module -> aufspalten in add module und delete module
+#   neuer eintrag, sowas wie resume und scan (only nmap)
+# dirb output -> grep und pipe
 
 
 # GLOBALS
 conn = None
 proj = None
+_mod = []
 
 def clrs():
     os.system('clear')
@@ -25,47 +34,55 @@ def p_logo():
 
 def create_p(name, hosts, ports, prots):
     global data
-    #sqll_ins("project", [name, hosts, ports, prots])
     c = conn.cursor()
     c.execute("INSERT INTO project  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
+    conn.commit()
+
+def sqll_create_table(name, n):
+    global data
+    global conn
+
+    c = conn.cursor()
+
+    cmd = "CREATE TABLE '" + name + "' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 'pid'  INTEGER"
+
+    for i in range(n):
+        cmd += ", '" + str(i) + "'  TEXT"
+
+    cmd += "'status' INTEGER DEFAULT 0);"
+    c.execute(cmd)
     conn.commit()
 
 def load_proj(name):
     global proj
     c = conn.cursor()
     for row in c.execute("SELECT * FROM project WHERE name='" + name + "'"):
-        #proj = [row['id'], row['name'], row['hosts'], row['ports'], row['prots']]
         proj = row
 
-
-def sqll_ins(table, arr):
+def sqll_ins(table, arr, status):
     global conn
     cmd = "INSERT INTO " + table + " VALUES (NULL, " + str(proj[0])
     for entr in arr:
         cmd = cmd + ", '" + entr + "'"
-    cmd = cmd + ")"
+    cmd = cmd + ", " + status + ");"
 
-    print(cmd)
     c = conn.cursor()
     c.execute(cmd)
     conn.commit()
-
 
 def run_nmap():
     global proj
     print(proj)
     nm = nmap.PortScanner() # init
     nm.scan(hosts=proj[2], ports=proj[3])
-    #sqll_ins("r_nmap", nm.csv().split(';', 0))
 
-    #print(nm.csv())
     iternmcsv = iter(nm.csv().splitlines())
     next(iternmcsv)
     for row in iternmcsv:
-        sqll_ins("r_nmap", row.split(';'))
+        sqll_ins("r_nmap", row.split(';'), 0)
 
 
-def run_nikto(hostname, port):
+def run_nikto(hostname, port):  # delete it later
     global proj
     os.system("nikto -Display V -o _tmp_nikto.csv -Format csv -Tuning 9 -h " + hostname)
     _file = open('_tmp_nikto.csv', 'r')
@@ -83,22 +100,40 @@ def run_cmd(mid, hostname, port):
     global proj
     global _mod
 
-    os.system(_mod[mid][2].replace("$ip", hostname).replace("$port", port))
-    _file = open('tmp.csv', 'r')
+    os.system(_mod[mid][3].replace("$ip", hostname).replace("$port", port))
 
-    reader = csv.reader(open('_tmp_nikto.csv', 'r'), delimiter=',')
+    reader = csv.reader(open("tmp.csv", 'r'), delimiter=_mod[mid][4][0])
     itercsv = iter(reader)
     next(itercsv)
     for row in itercsv:
-        sqll_ins("r_nikto", row)
+        sqll_ins("r_" + _mod[mid][0], row, 1)
 
 
-    os.remove("_tmp_" + id + ".csv")
+    os.remove("tmp.csv")
+
+def working():
+    global proj
+    global _mod
+    for row in c.execute("SELECT * FROM r_nmap WHERE pid=" + str(proj[0]) + " AND status=0;"):
+        print(row)
+        i=0
+        #for _module in _mod:
+            #if(row[])
+
+
+
 
 
 # start
 clrs()
 p_logo()
+
+### LOAD cfg
+with open('modules.cfg') as fp:
+    i = 0
+    for row in fp:
+        _mod.append(row.split('<#>'))
+###
 
 if os.path.exists("./pta.sqlite"):
     print("DB exists")
@@ -126,28 +161,15 @@ else:
         "'reason' TEXT,"\
         "'version' TEXT,"\
         "'conf' TEXT,"\
-        "'cpe'  TEXT);")
-    c.execute("CREATE TABLE 'r_nikto' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"\
-        "'pid'  INTEGER, "\
-        "'2'  TEXT, "\
-        "'3' TEXT, "\
-        "'4' TEXT, "\
-        "'5' TEXT,"\
-        "'6' TEXT, "\
-        "'7' TEXT, "\
-        "'8' TEXT);")
+        "'cpe' TEXT,"\
+        "'status' INTEGER DEFAULT 0);")
+
     conn.commit()
 
 
-### LOAD cfg
-_mod = []
-
-with open('modules.cfg') as fp:
-    i = 0
-    for row in fp:
-        a = row.split(';')
-        _mod.append(row.split(';'))
-###
+    print(_mod)
+    for yo in _mod:
+        sqll_create_table(yo[0], int(yo[2]))
 
 print("Menu:")
 print("0     : exit programm")
@@ -198,8 +220,9 @@ elif i_nr == "2": # Funktion: Projekte laden
     if i_nr == "0":
         #run_nikto("127.0.0.1", "80")
         run_nmap()
+        #run_cmd(0, "127.0.0.1", "80")
         ###########
-
+        working()
         ###########
 
 
