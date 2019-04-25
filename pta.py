@@ -44,7 +44,7 @@ def sqll_create_table(name, n):
 
     c = conn.cursor()
 
-    cmd = "CREATE TABLE '" + name + "' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 'pid'  INTEGER"
+    cmd = "CREATE TABLE r_'" + name + "' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 'pid'  INTEGER"
 
     for i in range(n):
         cmd += ", '" + str(i) + "'  TEXT"
@@ -114,21 +114,28 @@ def run_cmd(mid, hostname, port):
     itercsv = iter(reader)
     next(itercsv)
     for row in itercsv:
-        sqll_ins("r_" + _mod[mid][0], row, 1)
+        sqll_ins("r_" + _mod[mid][0], row)
 
 
     os.remove("tmp.csv")
 
 def working():
+    global conn
     global proj
     global _mod
+
+    c = conn.cursor()
     for row in c.execute("SELECT * FROM r_nmap WHERE pid=" + str(proj[0]) + " AND status=0;"):
-        print(row)
+        #print(row)
         i=0
-        #for _module in _mod:
-            #if(row[])
+        for _module in _mod:
+            if(row[7] == _module[1]):
+                run_cmd(i, row[2], row[6])
+            i += 1
 
-
+        # this row is completed! mark it in the status column
+        c.execute("UPDATE table r_nmap SET status = 1 WHERE id=" + str(row[0]) + ";")
+        conn.commit()
 
 
 
