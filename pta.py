@@ -49,7 +49,7 @@ def sqll_create_table(name, n):
     for i in range(n):
         cmd += ", '" + str(i) + "'  TEXT"
 
-    cmd += "'status' INTEGER DEFAULT 0);"
+    cmd += ");"
     c.execute(cmd)
     conn.commit()
 
@@ -59,12 +59,12 @@ def load_proj(name):
     for row in c.execute("SELECT * FROM project WHERE name='" + name + "'"):
         proj = row
 
-def sqll_ins(table, arr, status):
+def sqll_ins(table, arr):
     global conn
     cmd = "INSERT INTO " + table + " VALUES (NULL, " + str(proj[0])
     for entr in arr:
         cmd = cmd + ", '" + entr + "'"
-    cmd = cmd + ", " + status + ");"
+    cmd = cmd + ");"
 
     c = conn.cursor()
     c.execute(cmd)
@@ -72,14 +72,22 @@ def sqll_ins(table, arr, status):
 
 def run_nmap():
     global proj
-    print(proj)
+    global connect
+
+    c = conn.cursor()
     nm = nmap.PortScanner() # init
     nm.scan(hosts=proj[2], ports=proj[3])
 
     iternmcsv = iter(nm.csv().splitlines())
     next(iternmcsv)
     for row in iternmcsv:
-        sqll_ins("r_nmap", row.split(';'), 0)
+        cmd = "INSERT INTO r_nmap VALUES (NULL, " + str(proj[0])
+        for entr in row.split(';'):
+            cmd = cmd + ", '" + entr + "'"
+        cmd = cmd + ", 0);"
+        c.execute(cmd)
+
+    conn.commit()
 
 
 def run_nikto(hostname, port):  # delete it later
