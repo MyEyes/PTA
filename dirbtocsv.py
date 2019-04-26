@@ -1,10 +1,7 @@
 import os
 import shutil
 
-    #die Ausgabe von von dirb wird in eine csv konvertiert.
-    # "=" (ordner) werden in dirb_ausgabe_out1=.csv geschrieben
-    # "+" (dateien) werden in dirb_ausgabe_out2=.csv geschrieben
-print("dirb ausgabe in csv datei konvertieren")
+os.execute("dirb " + sys.arg[1] + ":" + sys.arg[2])
 
 with open('dirb_ausgabe_in.txt', 'rb') as file_in:
     with open("dirb_ausgabe_out1.csv", "wb") as file_out1:

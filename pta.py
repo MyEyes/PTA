@@ -44,7 +44,7 @@ def sqll_create_table(name, n):
 
     c = conn.cursor()
 
-    cmd = "CREATE TABLE r_'" + name + "' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 'pid'  INTEGER"
+    cmd = "CREATE TABLE 'r_" + name + "' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 'pid'  INTEGER"
 
     for i in range(n):
         cmd += ", '" + str(i) + "'  TEXT"
@@ -56,8 +56,9 @@ def sqll_create_table(name, n):
 def load_proj(name):
     global proj
     c = conn.cursor()
-    for row in c.execute("SELECT * FROM project WHERE name='" + name + "'"):
-        proj = row
+    c.execute("SELECT * FROM project WHERE name='" + name + "'")
+    rows = c.fetchall()
+    proj = rows[0]
 
 def sqll_ins(table, arr):
     global conn
@@ -114,8 +115,8 @@ def run_cmd(mid, hostname, port):
     itercsv = iter(reader)
     next(itercsv)
     for row in itercsv:
-        sqll_ins("r_" + _mod[mid][0], row)
-
+        if(_mod[mid][2] == len(row)):
+            sqll_ins("r_" + _mod[mid][0], row)
 
     os.remove("tmp.csv")
 
@@ -125,16 +126,18 @@ def working():
     global _mod
 
     c = conn.cursor()
-    for row in c.execute("SELECT * FROM r_nmap WHERE pid=" + str(proj[0]) + " AND status=0;"):
-        #print(row)
+    c.execute("SELECT * FROM r_nmap WHERE pid=" + str(proj[0]) + " AND status=0;")
+    rows = c.fetchall()
+    for row in rows:
+        print(row)
         i=0
         for _module in _mod:
-            if(row[7] == _module[1]):
-                run_cmd(i, row[2], row[6])
+            #if(row[7] == _module[1]):
+                #run_cmd(i, row[2], row[6])
             i += 1
 
         # this row is completed! mark it in the status column
-        c.execute("UPDATE table r_nmap SET status = 1 WHERE id=" + str(row[0]) + ";")
+        c.execute("UPDATE r_nmap SET status = 1 WHERE id=" + str(row[0]) + ";")
         conn.commit()
 
 
@@ -214,7 +217,9 @@ elif i_nr == "2": # Funktion: Projekte laden
 
     i=0
     c = conn.cursor()
-    for row in c.execute("SELECT * FROM project ORDER BY id"):
+    c.execute("SELECT * FROM project ORDER BY id")
+    rows = c.fetchall()
+    for row in rows:
         print("[" + str(i) + "] " + row[1])
         i = i + 1
 
@@ -225,7 +230,7 @@ elif i_nr == "2": # Funktion: Projekte laden
     clrs()
     p_logo()
 
-    print("actual project: " + proj[2])
+    print("actual project: " + proj[1])
     print("options: ")
     print("[0] scan all")
     print("[x] show report")
@@ -249,7 +254,9 @@ elif i_nr == "3": # Funktion: Projekt löschen
 
     i=0
     c = conn.cursor()
-    for row in c.execute("SELECT * FROM project ORDER BY id"):
+    c.execute("SELECT * FROM project ORDER BY id")
+    rows = c.fetchall()
+    for row in rows:
         print("[" + str(i) + "] " + row[1])
         i = i + 1
 
