@@ -5,11 +5,8 @@ import sqlite3
 import csv
 
 # TODO
-# - delete database & reload modules.cfg
-#   -> sqlite datei löschen und programm neustarten
-# - zurück gehen im terminal?
-# nach dem das projekt geladen wurde:
-#   change module -> aufspalten in add module und delete module
+# beim start: stty icanon
+# beim beenden: stty -icanon
 
 # GLOBALS
 conn = None
@@ -76,6 +73,9 @@ def run_nmap():
     nm = nmap.PortScanner() # init
     nm.scan(hosts=proj[2], ports=proj[3], arguments=nmpar)
 
+    #print(nm.command_line())
+
+
     iternmcsv = iter(nm.csv().splitlines())
     next(iternmcsv)
     for row in iternmcsv:
@@ -86,6 +86,7 @@ def run_nmap():
         c.execute(cmd)
 
     conn.commit()
+
 
 def run_cmd(mid, hostname, port):
     global proj
@@ -169,7 +170,6 @@ else:
         "'status' INTEGER DEFAULT 0);")
 
     conn.commit()
-
 
     print(_mod)
     for yo in _mod:
