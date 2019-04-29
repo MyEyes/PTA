@@ -105,7 +105,7 @@ def run_cmd(mid, hostname, port):
         if(int(_mod[mid][2]) == len(row)):
             sqll_ins("r_" + _mod[mid][0], row)
 
-    #os.remove("tmp.csv")
+    os.remove("tmp.csv")
 
 def working():
     global conn
