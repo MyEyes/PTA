@@ -180,6 +180,7 @@ print("0     : exit programm")
 print("1     : create project")
 print("2     : load project")
 print("3     : delete project")
+print("4     : delete database & reload modules")
 
 i_nr=input()
 ######################################################################
@@ -256,6 +257,16 @@ elif i_nr == "3": # delete project
     conn.commit()
     print(i_nr + " was delete")
 ######################################################################
+elif i_nr == "4":
+    #datenbank wird gelöscht und die Module werden neu geladen
+    clrs()
+    p_logo()
+    print("delete database")
+    print("Confirm deletion with y: ")
+    i_load=input()
+    if (i_load.lower() == "y"):
+        os.remove("pta.sqlite")
+        os.system("python3 pta.py")
 
 #
 #nmap -sS -sV -sC -Pn -n -vv -O -p1-65535 -oA nmapscan_full_tcp_$IP <ip | domain>
