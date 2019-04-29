@@ -10,9 +10,6 @@ import csv
 # - zurück gehen im terminal?
 # nach dem das projekt geladen wurde:
 #   change module -> aufspalten in add module und delete module
-#   neuer eintrag, sowas wie resume und scan (only nmap)
-# dirb output -> grep und pipe
-
 
 # GLOBALS
 conn = None
@@ -43,7 +40,6 @@ def sqll_create_table(name, n):
     global conn
 
     c = conn.cursor()
-
     cmd = "CREATE TABLE 'r_" + name + "' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 'pid'  INTEGER"
 
     for i in range(n):
@@ -90,7 +86,6 @@ def run_nmap():
         c.execute(cmd)
 
     conn.commit()
-
 
 def run_cmd(mid, hostname, port):
     global proj
@@ -224,21 +219,23 @@ elif i_nr == "2": # Funktion: Projekte laden
     print("actual project: " + proj[1])
     print("options: ")
     print("[0] scan all")
-    print("[x] show report")
-    print("[x] change modules")
+    print("[1] resume")
+    print("[2] nmap only")
     i_nr = input("option: ")
 
     if i_nr == "0":
-        #run_nikto("127.0.0.1", "80")
         run_nmap()
-        #run_cmd(0, "127.0.0.1", "80")
-        ###########
         working()
         ###########
+    elif i_nr == "1":
+        working()
+    elif i_nr == "2":
+        run_nmap()
+
 
 
 ######################################################################
-elif i_nr == "3": # Funktion: Projekt löschen
+elif i_nr == "3": # delete project
     clrs()
     p_logo()
     print("which project would you like to delete?")
@@ -253,7 +250,6 @@ elif i_nr == "3": # Funktion: Projekt löschen
 
     i_nr = input("your input:") #löschendes projekt auswählen
 
-
     sql = "DELETE FROM project WHERE name='" + i_nr + "'"
     c = conn.cursor()
     c.execute(sql)
@@ -261,7 +257,7 @@ elif i_nr == "3": # Funktion: Projekt löschen
     print(i_nr + " was delete")
 ######################################################################
 
-#"""erklärung für uns
+#
 #nmap -sS -sV -sC -Pn -n -vv -O -p1-65535 -oA nmapscan_full_tcp_$IP <ip | domain>
 #-sS                 // TCP SYN
 #-sV                 // Probe open ports to determine service/version info
@@ -273,4 +269,3 @@ elif i_nr == "3": # Funktion: Projekt löschen
 #-O                  // -O: Enable OS detection
 #-p1-65535           // <port ranges>: Only scan specified ports; Example: -p1-65535;
 #-oA                 // <basename>: Output in the three major formats at once
-#"""
