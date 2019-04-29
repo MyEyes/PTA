@@ -3,6 +3,7 @@ import sys
 import os
 import sqlite3
 import csv
+import socket
 
 # TODO
 # beim start: stty icanon
@@ -69,11 +70,12 @@ def run_nmap():
     global connect
     global nmpar
 
+    # get ip
+    addr_ = socket.gethostbyname(proj[2])
+
     c = conn.cursor()
     nm = nmap.PortScanner() # init
-    nm.scan(hosts=proj[2], ports=proj[3], arguments=nmpar)
-
-    #print(nm.command_line())
+    nm.scan(hosts=addr_, ports=proj[3], arguments=nmpar)
 
 
     iternmcsv = iter(nm.csv().splitlines())
