@@ -119,8 +119,8 @@ def working():
         print(row)
         i=0
         for _module in _mod:
-            #if(row[7] == _module[1]):
-                #run_cmd(i, row[2], row[6])
+            if(row[7] == _module[1]):
+                run_cmd(i, row[2], row[6])
             i += 1
 
         # this row is completed! mark it in the status column
