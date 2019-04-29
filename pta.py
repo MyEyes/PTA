@@ -102,10 +102,10 @@ def run_cmd(mid, hostname, port):
     itercsv = iter(reader)
     next(itercsv)
     for row in itercsv:
-        if(_mod[mid][2] == len(row)):
+        if(int(_mod[mid][2]) == len(row)):
             sqll_ins("r_" + _mod[mid][0], row)
 
-    os.remove("tmp.csv")
+    #os.remove("tmp.csv")
 
 def working():
     global conn
@@ -141,6 +141,7 @@ with open('modules.cfg') as fp:
             nmpar = row
         else:
             _mod.append(row.split('<#>'))
+        i += 1
 ###
 
 if os.path.exists("./pta.sqlite"):
