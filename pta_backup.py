@@ -3,7 +3,6 @@ import sys
 import os
 import sqlite3
 import csv
-from termcolor import colored
 
 # TODO
 # beim start: stty icanon
@@ -13,27 +12,27 @@ from termcolor import colored
 conn = None
 proj = None
 _mod = []
-#--------------------------------------------------------------------#
-def clrs(): # this command clear the terminal
+
+def clrs():
     os.system('clear')
-#--------------------------------------------------------------------#
-def p_logo(): # the logo was defined here
-    print(colored('PTA - PenTestAutomatizer version 0.5\n', 'blue'))
-    print(colored("PPPPPP    TTTTTTTTT      A", "red"))
-    print(colored("PP  PPP   TTTTTTTTT     AAA", "red"))
-    print(colored("PP  PPP      TTT       AA AA", "red"))
-    print(colored("PPPPPP       TTT      AA   AA", "red"))
-    print(colored("PPP          TTT     AAAAAAAAA", "red"))
-    print(colored("PPP          TTT    AAAAAAAAAAA", "red"))
-    print(colored("PPP          TTT   AAAA     AAAA\n", "red"))
-#--------------------------------------------------------------------#
-def create_p(name, hosts, ports, prots): # function to create a project
+
+def p_logo():
+    print("PTA - PenTestAutomatizer version 0.1 alpha\n") # to run:  python3 /root/Documents/pythonfolder/hello.py
+    print("PPPPPP    TTTTTTTTT      A")
+    print("PP  PPP   TTTTTTTTT     AAA")
+    print("PP  PPP      TTT       AA AA")
+    print("PPPPPP       TTT      AA   AA")
+    print("PPP          TTT     AAAAAAAAA")
+    print("PPP          TTT    AAAAAAAAAAA")
+    print("PPP          TTT   AAAA     AAAA\n")
+
+def create_p(name, hosts, ports, prots):
     global data
     c = conn.cursor()
     c.execute("INSERT INTO project  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
     conn.commit()
-#--------------------------------------------------------------------#
-def sqll_create_table(name, n): # creating of a sql database
+
+def sqll_create_table(name, n):
     global data
     global conn
 
@@ -46,14 +45,14 @@ def sqll_create_table(name, n): # creating of a sql database
     cmd += ");"
     c.execute(cmd)
     conn.commit()
-#--------------------------------------------------------------------#
-def load_proj(name): # function to load a project
+
+def load_proj(name):
     global proj
     c = conn.cursor()
     c.execute("SELECT * FROM project WHERE name='" + name + "'")
     rows = c.fetchall()
     proj = rows[0]
-#--------------------------------------------------------------------#
+
 def sqll_ins(table, arr):
     global conn
     cmd = "INSERT INTO " + table + " VALUES (NULL, " + str(proj[0])
@@ -64,7 +63,7 @@ def sqll_ins(table, arr):
     c = conn.cursor()
     c.execute(cmd)
     conn.commit()
-#--------------------------------------------------------------------#
+
 def run_nmap():
     global proj
     global connect
@@ -73,6 +72,7 @@ def run_nmap():
     c = conn.cursor()
     nm = nmap.PortScanner() # init
     nm.scan(hosts=proj[2], ports=proj[3], arguments=nmpar)
+
 
     iternmcsv = iter(nm.csv().splitlines())
     next(iternmcsv)
@@ -84,7 +84,8 @@ def run_nmap():
         c.execute(cmd)
 
     conn.commit()
-#--------------------------------------------------------------------#
+
+
 def run_cmd(mid, hostname, port):
     global proj
     global _mod
@@ -99,7 +100,7 @@ def run_cmd(mid, hostname, port):
             sqll_ins("r_" + _mod[mid][0], row)
 
     os.remove("tmp.csv")
-#--------------------------------------------------------------------#
+
 def working():
     global conn
     global proj
@@ -119,12 +120,14 @@ def working():
         # this row is completed! mark it in the status column
         c.execute("UPDATE r_nmap SET status = 1 WHERE id=" + str(row[0]) + ";")
         conn.commit()
-#--------------------------------------------------------------------#
-# programm starts here
+
+
+
+# start
 clrs()
 p_logo()
 
-#---- LOAD modules.cfg begin----#
+### LOAD cfg
 with open('modules.cfg') as fp:
     i = 0
     for row in fp:
@@ -133,9 +136,10 @@ with open('modules.cfg') as fp:
         else:
             _mod.append(row.split('<#>'))
         i += 1
-#---- LOAD modules.cfg end----#
+###
 
-if os.path.exists("./pta.sqlite"): # creating sql database
+if os.path.exists("./pta.sqlite"):
+    print("DB exists")
     conn = sqlite3.connect('pta.sqlite')
 else:
     sqlite3.connect('pta.sqlite')
@@ -169,131 +173,108 @@ else:
     for yo in _mod:
         sqll_create_table(yo[0], int(yo[2]))
 
-print("main menu:")
-print("------------------------------------------")
-print("0     : exit this programm")
-print("1     : create a project")
-print("2     : load a project")
-print("3     : delete a project")
-print("4     : delete the database and reload the modules")
-print("------------------------------------------")
+print("Menu:")
+print("0     : exit programm")
+print("1     : create project")
+print("2     : load project")
+print("3     : delete project")
+print("4     : delete database & reload modules")
+
 i_nr=input()
 ######################################################################
-if i_nr == "0": # exit the programm
-    clrs()
-    p_logo()
-    print("exit this programm")
-    print("------------------------------------------")
-    print("you have successfully quit the programm!")
+if i_nr == "0":
     sys.exit()
 ######################################################################
-elif i_nr == "1": # create a project
+elif i_nr == "1":
     clrs()
     p_logo()
-    print("create a project")
-    print("------------------------------------------")
+    print("create project")
     i_proj  = input("project name: ")
     i_hosts = input("hosts (ip): ")
     i_prot  = input("TCP (0) or UDP (1) or BOTH (2): ")
     i_port  = input("ports : ")
-    print("")
+
     create_p(i_proj, i_hosts, i_port, i_prot)
-    clrs()
-    p_logo()
-    print("create a project")
-    print("------------------------------------------")
-    print("you have successfully create the project: " + i_proj)
-    print("")
-    print("press C to continue:")
-    i_cont=input()  # after creating a project, the programm starts against
-    if (i_cont.lower() == "c"):
-        os.system("python3 pta.py")
 ######################################################################
-elif i_nr == "2": # load a project
+elif i_nr == "2": # Funktion: Projekte laden
     clrs()
     p_logo()
-    print("load a project")
-    print("------------------------------------------")
-    print("which project would you like to load?")
-    print("")
+
     i=0
     c = conn.cursor()
     c.execute("SELECT * FROM project ORDER BY id")
     rows = c.fetchall()
     for row in rows:
-        print(str(i) + "     : " + row[1])
+        print("[" + str(i) + "] " + row[1])
         i = i + 1
 
-    print("")
-    i_proj  = input("projectname: ")
+    print("which project would you like to load?")
+    i_proj  = input("proj: ")
 
     load_proj(i_proj)
     clrs()
     p_logo()
-    print("load a project")
-    print("------------------------------------------")
-    print("the project: " + proj[1] + " has been loaded")
-    print("")
+
+    print("actual project: " + proj[1])
     print("options: ")
-    print("")
-    print("0     : scan all")
-    print("1     : resume")
-    print("2     : nmap only")
-    print("------------------------------------------")
+    print("[0] scan all")
+    print("[1] resume")
+    print("[2] nmap only")
     i_nr = input("option: ")
 
-    if i_nr == "0": # scan all
+    if i_nr == "0":
         run_nmap()
         working()
         ###########
-    elif i_nr == "1": # resume
+    elif i_nr == "1":
         working()
-    elif i_nr == "2": # nmap only
+    elif i_nr == "2":
         run_nmap()
 
+
+
 ######################################################################
-elif i_nr == "3": # delete a project
+elif i_nr == "3": # delete project
     clrs()
     p_logo()
-    print("delete a project")
-    print("------------------------------------------")
     print("which project would you like to delete?")
-    print("")
+
     i=0
     c = conn.cursor()
     c.execute("SELECT * FROM project ORDER BY id")
     rows = c.fetchall()
     for row in rows:
-        print(str(i) + "     : " + row[1])
+        print("[" + str(i) + "] " + row[1])
         i = i + 1
 
-    i_nr = input("projectname: ") # choose a projekt to delete
+    i_nr = input("your input:") #löschendes projekt auswählen
 
     sql = "DELETE FROM project WHERE name='" + i_nr + "'"
     c = conn.cursor()
     c.execute(sql)
     conn.commit()
-
-    clrs()
-    p_logo()
-    print("delete a project")
-    print("------------------------------------------")
-    print("you have successfully delete the project: " + i_nr)
-    print("")
-    print("press C to continue:")
-    i_abfrage=input()  # after deleting a project, the programm starts against
-    if (i_abfrage.lower() == "c"):
-        os.system("python3 pta.py")
+    print(i_nr + " was delete")
 ######################################################################
-elif i_nr == "4": # the database is deleted and the modules are reloaded 
+elif i_nr == "4":
+    #datenbank wird gelöscht und die Module werden neu geladen
     clrs()
     p_logo()
-    print("delete the database and reload the modules")
-    print("------------------------------------------")
-    print("")
+    print("delete database")
     print("Confirm deletion with y: ")
     i_load=input()
     if (i_load.lower() == "y"):
         os.remove("pta.sqlite")
         os.system("python3 pta.py")
-######################################################################        
+
+#
+#nmap -sS -sV -sC -Pn -n -vv -O -p1-65535 -oA nmapscan_full_tcp_$IP <ip | domain>
+#-sS                 // TCP SYN
+#-sV                 // Probe open ports to determine service/version info
+#-sC                 // equivalent to --script=default
+#--script=<yolo>     // <yolo> is a comma separated list of directories, script-files or script-categories
+#-Pn                 // Treat all hosts as online -- skip host discovery
+#-n                  // -n/-R: Never do DNS resolution/Always resolve [default: sometimes]
+#-v                  // Increase verbosity level (use -vv or more for greater effect)
+#-O                  // -O: Enable OS detection
+#-p1-65535           // <port ranges>: Only scan specified ports; Example: -p1-65535;
+#-oA                 // <basename>: Output in the three major formats at once
