@@ -74,10 +74,11 @@ def sqll_ins(table, arr):
 def run_nmap():
     global proj
     global connect
+    global nmpar
 
     c = conn.cursor()
     nm = nmap.PortScanner() # init
-    nm.scan(hosts=proj[2], ports=proj[3])
+    nm.scan(hosts=proj[2], ports=proj[3], arguments=nmpar)
 
     iternmcsv = iter(nm.csv().splitlines())
     next(iternmcsv)
@@ -89,20 +90,6 @@ def run_nmap():
         c.execute(cmd)
 
     conn.commit()
-
-
-def run_nikto(hostname, port):  # delete it later
-    global proj
-    os.system("nikto -Display V -o _tmp_nikto.csv -Format csv -Tuning 9 -h " + hostname)
-    _file = open('_tmp_nikto.csv', 'r')
-
-    reader = csv.reader(open('_tmp_nikto.csv', 'r'), delimiter=',')
-    itercsv = iter(reader)
-    next(itercsv)
-    for row in itercsv:
-        sqll_ins("r_nikto", row)
-
-    # delete
 
 
 def run_cmd(mid, hostname, port):
@@ -150,7 +137,10 @@ p_logo()
 with open('modules.cfg') as fp:
     i = 0
     for row in fp:
-        _mod.append(row.split('<#>'))
+        if (i==0):
+            nmpar = row
+        else:
+            _mod.append(row.split('<#>'))
 ###
 
 if os.path.exists("./pta.sqlite"):
