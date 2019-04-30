@@ -3,7 +3,9 @@ import sys
 import os
 import sqlite3
 import csv
+import atexit
 from termcolor import colored
+from random import randint
 
 # TODO
 # beim start: stty icanon
@@ -13,6 +15,12 @@ from termcolor import colored
 conn = None
 proj = None
 _mod = []
+sid  = randint(1000000000, 9999999999)
+#--------------------------------------------------------------------#
+def exit_handler():
+    os.system('stty -icanon')
+atexit.register(exit_handler)
+os.system('stty icanon')
 #--------------------------------------------------------------------#
 def clrs(): # this command clear the terminal
     os.system('clear')
@@ -89,16 +97,16 @@ def run_cmd(mid, hostname, port):
     global proj
     global _mod
 
-    os.system(_mod[mid][3].replace("$ip", hostname).replace("$port", port))
+    os.system(_mod[mid][3].replace("$ip", hostname).replace("$port", port).replace("$out", "tmp_" + str(sid) + ".csv"))
 
-    reader = csv.reader(open("tmp.csv", 'r'), delimiter=_mod[mid][4][0])
+    reader = csv.reader(open("tmp_" + str(sid) + ".csv", 'r'), delimiter=_mod[mid][4][0])
     itercsv = iter(reader)
     next(itercsv)
     for row in itercsv:
         if(int(_mod[mid][2]) == len(row)):
             sqll_ins("r_" + _mod[mid][0], row)
 
-    os.remove("tmp.csv")
+    os.remove("tmp_" + str(sid) + ".csv")
 #--------------------------------------------------------------------#
 def working():
     global conn
@@ -285,7 +293,7 @@ elif i_nr == "3": # delete a project
     if (i_abfrage.lower() == "c"):
         os.system("python3 pta.py")
 ######################################################################
-elif i_nr == "4": # the database is deleted and the modules are reloaded 
+elif i_nr == "4": # the database is deleted and the modules are reloaded
     clrs()
     p_logo()
     print("delete the database and reload the modules")
@@ -296,4 +304,4 @@ elif i_nr == "4": # the database is deleted and the modules are reloaded
     if (i_load.lower() == "y"):
         os.remove("pta.sqlite")
         os.system("python3 pta.py")
-######################################################################        
+######################################################################
