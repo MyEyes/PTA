@@ -35,6 +35,28 @@ def p_logo(): # the logo was defined here
     print(colored("PPP          TTT    AAAAAAAAAAA", "red"))
     print(colored("PPP          TTT   AAAA     AAAA\n", "red"))
 #--------------------------------------------------------------------#
+def ShowProjDelProj(): # shows all projects and deletes a selected project
+    clrs()
+    p_logo()
+    print("delete a project")
+    print("------------------------------------------")
+    print("which project would you like to delete?")
+    print("")
+    i=0
+    c = conn.cursor()
+    c.execute("SELECT * FROM project ORDER BY id")
+    rows = c.fetchall()
+    for row in rows:
+        print(str(i) + "     : " + row[1])
+        i = i + 1
+
+    i_nr = input("projectname: ") # choose a projekt to delete
+
+    sql = "DELETE FROM project WHERE name='" + i_nr + "'"
+    c = conn.cursor()
+    c.execute(sql)
+    conn.commit()
+#--------------------------------------------------------------------#
 def create_p(name, hosts, ports, prots): # function to create a project
     global data
     c = conn.cursor()
@@ -99,6 +121,8 @@ def run_cmd(mid, hostname, port):
 
     os.system(_mod[mid][3].replace("$ip", hostname).replace("$port", port).replace("$out", "tmp_" + str(sid) + ".csv"))
 
+    print(str(mid) + "\n" + "tmp_" + str(sid) + ".csv\nlol")
+
     reader = csv.reader(open("tmp_" + str(sid) + ".csv", 'r'), delimiter=_mod[mid][4][0])
     itercsv = iter(reader)
     next(itercsv)
@@ -121,7 +145,7 @@ def working():
         i=0
         for _module in _mod:
             if(row[7] == _module[1]):
-                run_cmd(i, row[2], row[6])
+                run_cmd(i, row[3], row[6])
             i += 1
 
         # this row is completed! mark it in the status column
@@ -261,26 +285,8 @@ elif i_nr == "2": # load a project
 
 ######################################################################
 elif i_nr == "3": # delete a project
-    clrs()
-    p_logo()
-    print("delete a project")
-    print("------------------------------------------")
-    print("which project would you like to delete?")
-    print("")
-    i=0
-    c = conn.cursor()
-    c.execute("SELECT * FROM project ORDER BY id")
-    rows = c.fetchall()
-    for row in rows:
-        print(str(i) + "     : " + row[1])
-        i = i + 1
 
-    i_nr = input("projectname: ") # choose a projekt to delete
-
-    sql = "DELETE FROM project WHERE name='" + i_nr + "'"
-    c = conn.cursor()
-    c.execute(sql)
-    conn.commit()
+    ShowProjDelProj() # shows all projects and deletes a selected project
 
     clrs()
     p_logo()
@@ -288,9 +294,25 @@ elif i_nr == "3": # delete a project
     print("------------------------------------------")
     print("you have successfully delete the project: " + i_nr)
     print("")
-    print("press C to continue:")
-    i_abfrage=input()  # after deleting a project, the programm starts against
-    if (i_abfrage.lower() == "c"):
+    print("press c to go back in the main menu:")
+    print("                or                 ")
+    print("press d to delete another project:")
+
+    i_abfrage=input()
+
+    while (i_abfrage.lower() == "d"): # to delete another project
+        ShowProjDelProj()
+        clrs()
+        p_logo()
+        print("delete a project")
+        print("------------------------------------------")
+        print("you have successfully delete the project: " + i_nr)
+        print("")
+        print("press c to go back in the main menu:")
+        print("         or         ")
+        print("press d to delete another project:")
+        i_abfrage=input()
+    if (i_abfrage.lower() == "c"): # to go back in the menu
         os.system("python3 pta.py")
 ######################################################################
 elif i_nr == "4": # the database is deleted and the modules are reloaded

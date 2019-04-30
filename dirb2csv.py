@@ -1,17 +1,20 @@
 import os
 import sys
 import requests
+from random import randint
 
 # sys.argv[1] => hostname/ ip
 # sys.argv[2] => port
-# sys.argv[3] => sid (session id)
+# sys.argv[3] => outf (output file)
 # sys.argv[4] => wordl (wordlist)
 
 hostname    = sys.argv[1]
 port        = sys.argv[2]
-sid         = sys.argv[3]
+outf        = sys.argv[3]
 wordl       = sys.argv[4]
 
+sid = randint(1000000000, 9999999999)
+sid = str(sid)
 pre = ""
 
 ### check, if http or https
@@ -28,10 +31,10 @@ except:
         pass
 
 if (pre != ""):
-    os.system("dirb " + pre + "://" + hostname + ":" + port + " " + wordl +  "-f -o dirb_" + sid + ".txt")
+    os.system("dirb " + pre + "://" + hostname + ":" + port + " " + wordl +  " -f -o dirb_" + sid + ".txt")
 
-    with open("dirb_" + sys.argv[3] + ".txt", 'r') as file_in:
-        f = open("tmp_" + sys.argv[3] + ".csv", 'w')
+    with open("dirb_" + sid + ".txt", 'r') as file_in:
+        f = open(outf, 'w')
         for x in file_in:
             if(x[0:3] == "==>"):
                 # dir
@@ -41,4 +44,4 @@ if (pre != ""):
                 f.write(x[2:-1] + ";file\n")
 
         f.close()
-    os.remove("dirb_" + sys.argv[3] + ".txt")
+    os.remove("dirb_" + sid + ".txt")
