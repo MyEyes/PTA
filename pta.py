@@ -7,10 +7,6 @@ import atexit
 from termcolor import colored
 from random import randint
 
-# TODO
-# beim start: stty icanon
-# beim beenden: stty -icanon
-
 # GLOBALS
 conn = None
 proj = None
@@ -26,15 +22,20 @@ def clrs(): # this command clear the terminal
     os.system('clear')
 #--------------------------------------------------------------------#
 def p_logo(): # the logo was defined here
-    print(colored('PTA - PenTestAutomatizer version 0.5\n', 'blue'))
-    print(colored("PPPPPP    TTTTTTTTT      A", "red"))
-    print(colored("PP  PPP   TTTTTTTTT     AAA", "red"))
-    print(colored("PP  PPP      TTT       AA AA", "red"))
-    print(colored("PPPPPP       TTT      AA   AA", "red"))
-    print(colored("PPP          TTT     AAAAAAAAA", "red"))
-    print(colored("PPP          TTT    AAAAAAAAAAA", "red"))
-    print(colored("PPP          TTT   AAAA     AAAA\n", "red"))
+    print(colored('PenTestAutomatizer\n', 'blue'))
+    print(colored(" ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄ ", "red"))
+    print(colored("▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌", "red"))
+    print(colored("▐░█▀▀▀▀▀▀▀█░▌ ▀▀▀▀█░█▀▀▀▀ ▐░█▀▀▀▀▀▀▀█░▌", "red"))
+    print(colored("▐░▌       ▐░▌     ▐░▌     ▐░▌       ▐░▌", "red"))
+    print(colored("▐░█▄▄▄▄▄▄▄█░▌     ▐░▌     ▐░█▄▄▄▄▄▄▄█░▌", "red"))
+    print(colored("▐░░░░░░░░░░░▌     ▐░▌     ▐░░░░░░░░░░░▌", "red"))
+    print(colored("▐░█▀▀▀▀▀▀▀▀▀      ▐░▌     ▐░█▀▀▀▀▀▀▀█░▌", "red"))
+    print(colored("▐░▌               ▐░▌     ▐░▌       ▐░▌", "red"))
+    print(colored("▐░▌               ▐░▌     ▐░▌       ▐░▌", "red"))
+    print(colored("▐░▌               ▐░▌     ▐░▌       ▐░▌", "red"))
+    print(colored(" ▀                 ▀       ▀         ▀ \n", "red"))
 #--------------------------------------------------------------------#
+
 def ShowProjDelProj(): # shows all projects and deletes a selected project
     clrs()
     p_logo()
