@@ -8,6 +8,10 @@ import hashlib
 from termcolor import colored
 from random import randint
 
+# TODO
+# cve search
+
+
 # GLOBALS
 conn    = None
 proj    = None
