@@ -4,14 +4,16 @@ import os
 import sqlite3
 import csv
 import atexit
+import hashlib
 from termcolor import colored
 from random import randint
 
 # GLOBALS
-conn = None
-proj = None
-_mod = []
-sid  = randint(1000000000, 9999999999)
+conn    = None
+proj    = None
+nmpar   = [None]*2
+_mod    = []
+sid     = randint(1000000000, 9999999999)
 #--------------------------------------------------------------------#
 def exit_handler():
     os.system('stty -icanon')
@@ -35,29 +37,6 @@ def p_logo(): # the logo was defined here
     print(colored("▐░▌               ▐░▌     ▐░▌       ▐░▌", "red"))
     print(colored(" ▀                 ▀       ▀         ▀ \n", "red"))
 #--------------------------------------------------------------------#
-
-def ShowProjDelProj(): # shows all projects and deletes a selected project
-    clrs()
-    p_logo()
-    print("delete a project")
-    print("------------------------------------------")
-    print("which project would you like to delete?")
-    print("")
-    i=0
-    c = conn.cursor()
-    c.execute("SELECT * FROM project ORDER BY id")
-    rows = c.fetchall()
-    for row in rows:
-        print(str(i) + "     : " + row[1])
-        i = i + 1
-
-    i_nr = input("projectname: ") # choose a projekt to delete
-
-    sql = "DELETE FROM project WHERE name='" + i_nr + "'"
-    c = conn.cursor()
-    c.execute(sql)
-    conn.commit()
-#--------------------------------------------------------------------#
 def create_p(name, hosts, ports, prots): # function to create a project
     global data
     c = conn.cursor()
@@ -69,7 +48,7 @@ def sqll_create_table(name, n): # creating of a sql database
     global conn
 
     c = conn.cursor()
-    cmd = "CREATE TABLE 'r_" + name + "' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 'pid'  INTEGER"
+    cmd = "CREATE TABLE 'r_" + name + "' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 'pid'  INTEGER, 'datetime' TEXT"
 
     for i in range(n):
         cmd += ", '" + str(i) + "'  TEXT"
@@ -87,7 +66,7 @@ def load_proj(name): # function to load a project
 #--------------------------------------------------------------------#
 def sqll_ins(table, arr):
     global conn
-    cmd = "INSERT INTO " + table + " VALUES (NULL, " + str(proj[0])
+    cmd = "INSERT INTO " + table + " VALUES (NULL, " + str(proj[0]) + ", datetime('now', 'localtime')"
     for entr in arr:
         cmd = cmd + ", '" + entr + "'"
     cmd = cmd + ");"
@@ -103,12 +82,12 @@ def run_nmap():
 
     c = conn.cursor()
     nm = nmap.PortScanner() # init
-    nm.scan(hosts=proj[2], ports=proj[3], arguments=nmpar)
+    nm.scan(hosts=proj[2], ports=proj[3], arguments=nmpar[proj[4]])
 
     iternmcsv = iter(nm.csv().splitlines())
     next(iternmcsv)
     for row in iternmcsv:
-        cmd = "INSERT INTO r_nmap VALUES (NULL, " + str(proj[0])
+        cmd = "INSERT INTO r_nmap VALUES (NULL, " + str(proj[0]) + ", datetime('now', 'localtime')"
         for entr in row.split(';'):
             cmd = cmd + ", '" + entr + "'"
         cmd = cmd + ", 0);"
@@ -145,8 +124,8 @@ def working():
         print(row)
         i=0
         for _module in _mod:
-            if(row[7] == _module[1]):
-                run_cmd(i, row[3], row[6])
+            if(row[8] == _module[1]):
+                run_cmd(i, row[4], row[7])
             i += 1
 
         # this row is completed! mark it in the status column
@@ -161,19 +140,35 @@ p_logo()
 with open('modules.cfg') as fp:
     i = 0
     for row in fp:
-        if (i==0):
-            nmpar = row
+        if ((i==0) | (i==1)):
+            nmpar[i] = str(row[:-1])
         else:
             _mod.append(row.split('<#>'))
         i += 1
 #---- LOAD modules.cfg end----#
 
+#---- GENERATE modules.cfg MD5 HASH begin----#
+hasher = hashlib.md5()
+with open('modules.cfg', 'rb') as afile:
+    buf = afile.read()
+    hasher.update(buf)
+mcfghash = str(hasher.hexdigest())
+#---- GENERATE modules.cfg MD5 HASH end----#
+
 if os.path.exists("./pta.sqlite"): # creating sql database
     conn = sqlite3.connect('pta.sqlite')
+    # check if modules.cfg has been changed
+    c = conn.cursor()
+    c.execute("SELECT * FROM hash;")
+    rows = c.fetchall()
+    if (rows[0][0] != mcfghash):
+        print("lol")
+        sys.exit()
 else:
     sqlite3.connect('pta.sqlite')
     conn = sqlite3.connect("./pta.sqlite")
     c = conn.cursor()
+    c.execute("CREATE TABLE 'hash' ('0' TEXT);")
     c.execute("CREATE TABLE 'project' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"\
         "'name'  TEXT NOT NULL UNIQUE, "\
         "'hosts' TEXT, "\
@@ -181,6 +176,7 @@ else:
         "'prots' TEXT);")
     c.execute("CREATE TABLE 'r_nmap' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"\
         "'pid'  INTEGER, "\
+        "'datetime'  TEXT, "\
         "'host'  TEXT, "\
         "'hostname'  TEXT, "\
         "'hostname_type'  TEXT, "\
@@ -197,8 +193,9 @@ else:
         "'status' INTEGER DEFAULT 0);")
 
     conn.commit()
+    c.execute("INSERT INTO hash VALUES ('" + mcfghash +  "');")
+    conn.commit()
 
-    print(_mod)
     for yo in _mod:
         sqll_create_table(yo[0], int(yo[2]))
 
@@ -227,7 +224,7 @@ elif i_nr == "1": # create a project
     print("------------------------------------------")
     i_proj  = input("project name: ")
     i_hosts = input("hosts (ip): ")
-    i_prot  = input("TCP (0) or UDP (1) or BOTH (2): ")
+    i_prot  = input("TCP (0) or UDP (1): ")
     i_port  = input("ports : ")
     print("")
     create_p(i_proj, i_hosts, i_port, i_prot)
@@ -286,23 +283,29 @@ elif i_nr == "2": # load a project
 
 ######################################################################
 elif i_nr == "3": # delete a project
-
-    ShowProjDelProj() # shows all projects and deletes a selected project
-
-    clrs()
-    p_logo()
-    print("delete a project")
-    print("------------------------------------------")
-    print("you have successfully delete the project: " + i_nr)
-    print("")
-    print("press c to go back in the main menu:")
-    print("                or                 ")
-    print("press d to delete another project:")
-
-    i_abfrage=input()
+    i_abfrage="d"
 
     while (i_abfrage.lower() == "d"): # to delete another project
-        ShowProjDelProj()
+        clrs()
+        p_logo()
+        print("delete a project")
+        print("------------------------------------------")
+        print("which project would you like to delete?")
+        print("")
+        i=0
+        c = conn.cursor()
+        c.execute("SELECT * FROM project ORDER BY id")
+        rows = c.fetchall()
+        for row in rows:
+            print(str(i) + "     : " + row[1])
+            i = i + 1
+
+        i_nr = input("projectname: ") # choose a projekt to delete
+
+        sql = "DELETE FROM project WHERE name='" + i_nr + "'"
+        c = conn.cursor()
+        c.execute(sql)
+        conn.commit()
         clrs()
         p_logo()
         print("delete a project")
