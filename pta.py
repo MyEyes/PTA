@@ -86,7 +86,7 @@ def run_nmap():
 
     c = conn.cursor()
     nm = nmap.PortScanner() # init
-    nm.scan(hosts=proj[2], ports=proj[3], arguments=nmpar[proj[4]])
+    nm.scan(hosts=proj[2], ports=proj[3], arguments=nmpar[int(proj[4])])
 
     iternmcsv = iter(nm.csv().splitlines())
     next(iternmcsv)
@@ -94,7 +94,10 @@ def run_nmap():
         cmd = "INSERT INTO r_nmap VALUES (NULL, " + str(proj[0]) + ", datetime('now', 'localtime')"
         for entr in row.split(';'):
             cmd = cmd + ", '" + entr + "'"
-        cmd = cmd + ", 0);"
+        if(row.split(';')[6] == "open"):
+            cmd = cmd + ", 0);"
+        else:
+            cmd = cmd + ", 1);"
         c.execute(cmd)
 
     conn.commit()
@@ -107,9 +110,13 @@ def run_cmd(mid, hostname, port):
 
     print(str(mid) + "\n" + "tmp_" + str(sid) + ".csv\nlol")
 
+    print(proj)
+    print(str(mid))
+
     reader = csv.reader(open("tmp_" + str(sid) + ".csv", 'r'), delimiter=_mod[mid][4][0])
     itercsv = iter(reader)
     next(itercsv)
+
     for row in itercsv:
         if(int(_mod[mid][2]) == len(row)):
             sqll_ins("r_" + _mod[mid][0], row)
