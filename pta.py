@@ -108,11 +108,6 @@ def run_cmd(mid, hostname, port):
 
     os.system(_mod[mid][3].replace("$ip", hostname).replace("$port", port).replace("$out", "tmp_" + str(sid) + ".csv"))
 
-    print(str(mid) + "\n" + "tmp_" + str(sid) + ".csv\nlol")
-
-    print(proj)
-    print(str(mid))
-
     reader = csv.reader(open("tmp_" + str(sid) + ".csv", 'r'), delimiter=_mod[mid][4][0])
     itercsv = iter(reader)
     next(itercsv)
