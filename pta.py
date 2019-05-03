@@ -1,25 +1,17 @@
-import nmap
-import sys
-import os
-import sqlite3
-import csv
-import atexit
-import hashlib
+import nmap, sys, csv
+import sqlite3, os
+import hashlib, atexit
 from termcolor import colored
 from random import randint
-
-# TODO
-# cve search
-
-
+#--------------------------------------------------------------------#
 # GLOBALS
 conn    = None
 proj    = None
 nmpar   = [None]*2
 _mod    = []
-sid     = randint(1000000000, 9999999999)
+sid     = randint(1000000000, 9999999999) # Return a random integer N such that a <= N <= b.
 #--------------------------------------------------------------------#
-def exit_handler():
+def exit_handler(): # function to go back during terminal input
     os.system('stty -icanon')
 atexit.register(exit_handler)
 os.system('stty icanon')
@@ -38,7 +30,6 @@ def p_logo(): # the logo was defined here
     print(colored("▐░█▀▀▀▀▀▀▀▀▀      ▐░▌     ▐░█▀▀▀▀▀▀▀█░▌", "red"))
     print(colored("▐░▌               ▐░▌     ▐░▌       ▐░▌", "red"))
     print(colored("▐░▌               ▐░▌     ▐░▌       ▐░▌", "red"))
-    print(colored("▐░▌               ▐░▌     ▐░▌       ▐░▌", "red"))
     print(colored(" ▀                 ▀       ▀         ▀ \n", "red"))
 #--------------------------------------------------------------------#
 def create_p(name, hosts, ports, prots): # function to create a project
@@ -47,7 +38,7 @@ def create_p(name, hosts, ports, prots): # function to create a project
     c.execute("INSERT INTO project  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
     conn.commit()
 #--------------------------------------------------------------------#
-def sqll_create_table(name, n): # creating of a sql database
+def sqll_create_table(name, n): # function to create a sql database
     global data
     global conn
 
@@ -68,7 +59,7 @@ def load_proj(name): # function to load a project
     rows = c.fetchall()
     proj = rows[0]
 #--------------------------------------------------------------------#
-def sqll_ins(table, arr):
+def sqll_ins(table, arr): #
     global conn
     cmd = "INSERT INTO " + table + " VALUES (NULL, " + str(proj[0]) + ", datetime('now', 'localtime')"
     for entr in arr:
@@ -79,7 +70,7 @@ def sqll_ins(table, arr):
     c.execute(cmd)
     conn.commit()
 #--------------------------------------------------------------------#
-def run_nmap():
+def run_nmap(): # function to run nmap scan
     global proj
     global connect
     global nmpar
@@ -138,7 +129,7 @@ def working():
         c.execute("UPDATE r_nmap SET status = 1 WHERE id=" + str(row[0]) + ";")
         conn.commit()
 #--------------------------------------------------------------------#
-# programm starts here
+# main programm starts here!
 clrs()
 p_logo()
 
@@ -171,7 +162,7 @@ if os.path.exists("./pta.sqlite"): # creating sql database
         print("lol")
         sys.exit()
 else:
-    sqlite3.connect('pta.sqlite')
+    sqlite3.connect('pta.sqlite')   # creating sql database
     conn = sqlite3.connect("./pta.sqlite")
     c = conn.cursor()
     c.execute("CREATE TABLE 'hash' ('0' TEXT);")
@@ -207,48 +198,87 @@ else:
 
 print("main menu:")
 print("------------------------------------------")
-print("0     : exit this programm")
-print("1     : create a project")
-print("2     : load a project")
-print("3     : delete a project")
-print("4     : delete the database and reload the modules")
+print("0     : exit programm")
+print("1     : create project")
+print("2     : load project")
+print("3     : delete project")
+print("4     : delete database & reload modules")
 print("------------------------------------------")
 i_nr=input()
+
+#while ((i_nr != "0") or (i_nr != "1") or (i_nr != "2") or (i_nr != "3") or (i_nr != "4")):
+ #   print("enter a valid value!!!")
+  #  i_nr=input()          
+
 ######################################################################
 if i_nr == "0": # exit the programm
     clrs()
     p_logo()
-    print("exit this programm")
+    print("exit programm")
     print("------------------------------------------")
-    print("you have successfully quit the programm!")
+    print("successfully quit programm!")
     sys.exit()
 ######################################################################
 elif i_nr == "1": # create a project
-    clrs()
-    p_logo()
-    print("create a project")
-    print("------------------------------------------")
-    i_proj  = input("project name: ")
-    i_hosts = input("hosts (ip): ")
-    i_prot  = input("TCP (0) or UDP (1): ")
-    i_port  = input("ports : ")
-    print("")
-    create_p(i_proj, i_hosts, i_port, i_prot)
-    clrs()
-    p_logo()
-    print("create a project")
-    print("------------------------------------------")
-    print("you have successfully create the project: " + i_proj)
-    print("")
-    print("press C to continue:")
-    i_cont=input()  # after creating a project, the programm starts against
-    if (i_cont.lower() == "c"):
+    i_abfrage="c" # so that the program can enter the while loop once.
+
+    while (i_abfrage.lower() == "c"): # to create another project
+        clrs()
+        p_logo()
+        print("create project")
+        print("------------------------------------------")
+        i_proj  = input("project name: ")
+        i_hosts = input("hosts (ip): ")
+        i_prot  = input("TCP (0) or UDP (1): ")
+        i_port  = input("ports: ")
+        print("")
+        create_p(i_proj, i_hosts, i_port, i_prot)
+        clrs()
+        p_logo()
+        print("create a project")
+        print("------------------------------------------")
+        print("project: " + i_proj + " successfully create")
+        print("")
+        print("press 'r' to return menu:") # open the complete py script
+        print("press 'l' to load the project:")
+        print("press 'c' to create another project:") # while i_abfrage = c
+
+        i_abfrage=input()  
+    if (i_abfrage.lower() == "r"): # after creating a project, the py script starts against
         os.system("python3 pta.py")
+    elif (i_abfrage.lower() == "l"):
+        load_proj(i_proj) # load project created above
+        clrs()
+        p_logo()
+        print("load project")
+        print("------------------------------------------")
+        print("project: " + proj[1] + " loaded")
+        print("")
+        print("options: ")
+        print("")
+        print("0     : scan all")
+        print("1     : resume")
+        print("2     : nmap only")
+        print("------------------------------------------")
+        i_nr = input("option: ") # choose one option
+
+        if i_nr == "0": # scan all
+            run_nmap()
+            working()
+            ###########
+        elif i_nr == "1": # resume
+            working()
+        elif i_nr == "2": # nmap only
+            run_nmap()
+        elif (i_nr != "0" or "1" or "2"):
+            print("enter a valid value!") 
+    elif (i_abfrage.lower() != "r" or "l" or "c"):
+        print("enter a valid value!") 
 ######################################################################
 elif i_nr == "2": # load a project
     clrs()
     p_logo()
-    print("load a project")
+    print("load project")
     print("------------------------------------------")
     print("which project would you like to load?")
     print("")
@@ -266,9 +296,9 @@ elif i_nr == "2": # load a project
     load_proj(i_proj)
     clrs()
     p_logo()
-    print("load a project")
+    print("load project")
     print("------------------------------------------")
-    print("the project: " + proj[1] + " has been loaded")
+    print("project: " + proj[1] + " loaded")
     print("")
     print("options: ")
     print("")
@@ -281,20 +311,20 @@ elif i_nr == "2": # load a project
     if i_nr == "0": # scan all
         run_nmap()
         working()
-        ###########
     elif i_nr == "1": # resume
         working()
     elif i_nr == "2": # nmap only
         run_nmap()
-
+    elif (i_nr != "0" or "1" or "2"):
+        print("enter a valid value!") 
 ######################################################################
 elif i_nr == "3": # delete a project
-    i_abfrage="d"
+    i_abfrage="d"# so that the program can enter the while loop once.
 
-    while (i_abfrage.lower() == "d"): # to delete another project
+    while (i_abfrage.lower() == "d"): # to delete a project
         clrs()
         p_logo()
-        print("delete a project")
+        print("delete project")
         print("------------------------------------------")
         print("which project would you like to delete?")
         print("")
@@ -312,28 +342,37 @@ elif i_nr == "3": # delete a project
         c = conn.cursor()
         c.execute(sql)
         conn.commit()
+
         clrs()
         p_logo()
-        print("delete a project")
+        print("delete project")
         print("------------------------------------------")
-        print("you have successfully delete the project: " + i_nr)
+        print("project: " + i_nr + " successfully delete")
         print("")
-        print("press c to go back in the main menu:")
-        print("         or         ")
-        print("press d to delete another project:")
+        print("press 'r' to return main menu:")
+        print("press 'd' to delete another project:") # it is spring back to the while loop
+       
         i_abfrage=input()
-    if (i_abfrage.lower() == "c"): # to go back in the menu
+    if (i_abfrage.lower() == "r"): # to go back in the menu
         os.system("python3 pta.py")
+    elif (i_abfrage.lower() != "r" and i_abfrage.lower() !=  "d"):
+        print("enter a valid value!")  
 ######################################################################
 elif i_nr == "4": # the database is deleted and the modules are reloaded
     clrs()
     p_logo()
-    print("delete the database and reload the modules")
+    print("delete database & reload modules")
     print("------------------------------------------")
     print("")
-    print("Confirm deletion with y: ")
+    print("press 'y' to confirm deletion: ")
     i_load=input()
+    while (i_load != "y"):
+        print("enter a valid value!") 
+        i_load=input()
     if (i_load.lower() == "y"):
         os.remove("pta.sqlite")
         os.system("python3 pta.py")
 ######################################################################
+elif i_nr != "1" or "2" or "3" or "4": # if you give an false input, programm start new
+    os.system("python3 pta.py")
+######################################################################    
