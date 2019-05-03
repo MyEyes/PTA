@@ -38,6 +38,7 @@ def create_p(name, hosts, ports, prots): # function to create a project
     c = conn.cursor()
     c.execute("INSERT INTO project  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "')")
     conn.commit()
+    os.makedirs("./projects/" + name)
 #--------------------------------------------------------------------#
 def sqll_create_table(name, n): # function to create a sql database
     global data
