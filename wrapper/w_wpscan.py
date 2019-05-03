@@ -1,6 +1,7 @@
 import os
 import sys
 import requests
+import json
 from random import randint
 
 # sys.argv[1] => hostname/ ip
@@ -11,7 +12,7 @@ from random import randint
 hostname    = sys.argv[1]
 port        = sys.argv[2]
 outf        = sys.argv[3]
-wordl       = sys.argv[4]
+#wordl       = sys.argv[4]
 
 sid = randint(1000000000, 9999999999)
 sid = str(sid)
@@ -31,8 +32,10 @@ except:
         pass
 
 if (pre != ""):
-    os.system("wpscan " + pre + "://" + hostname + ":" + port + " " + wordl +  " -f json -o wpscan_" + sid)
-
+    os.system("wpscan --url " + pre + "://" + hostname + ":" + port + " -f json -o wpscan_" + sid)
+    print(pre)
+    print(hostname)
+    print(port)
     with open("wpscan_" + sid, 'r') as file_in:
         f = open(outf, 'w')
         data = json.load(file_in)
