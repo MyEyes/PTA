@@ -19,15 +19,15 @@ pre = ""
 
 ### check, if http or https
 try:
-    r = requests.get("http://" + hostname + ":" + port)
-    pre = "http"
+    r = requests.get("https://" + hostname + ":" + port)
+    pre = "https"
 except:
-    # no http
+    # no https
     try:
-        r1 = requests.get("https://" + hostname + ":" + port)
-        pre = "https"
+        r = requests.get("http://" + hostname + ":" + port)
+        pre = "http"
     except:
-        # no https
+        # no http
         pass
 
 if (pre != ""):

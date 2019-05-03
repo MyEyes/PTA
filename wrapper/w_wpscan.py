@@ -20,15 +20,16 @@ pre = ""
 
 ### check, if http or https
 try:
-    r = requests.get("http://" + hostname + ":" + port)
-    pre = "http"
+    r = requests.get("https://" + hostname + ":" + port)
+    pre = "https"
+
 except:
-    # no http
+    # no https
     try:
-        r1 = requests.get("https://" + hostname + ":" + port)
-        pre = "https"
+        r = requests.get("http://" + hostname + ":" + port)
+        pre = "http"
     except:
-        # no https
+        # no http
         pass
 
 if (pre != ""):
@@ -40,7 +41,7 @@ if (pre != ""):
         f = open(outf, 'w')
         data = json.load(file_in)
         for x in data['interesting_findings']:
-            f.write(x + "\n")
+            f.write(x)
 
         f.close()
     #os.remove("wpscan_" + sid)
