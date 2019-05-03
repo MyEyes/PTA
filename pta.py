@@ -1,6 +1,7 @@
 import nmap, sys, csv
 import sqlite3, os
 import hashlib, atexit
+import json
 from termcolor import colored
 from random import randint
 #--------------------------------------------------------------------#
@@ -208,7 +209,7 @@ i_nr=input()
 
 #while ((i_nr != "0") or (i_nr != "1") or (i_nr != "2") or (i_nr != "3") or (i_nr != "4")):
  #   print("enter a valid value!!!")
-  #  i_nr=input()          
+  #  i_nr=input()
 
 ######################################################################
 if i_nr == "0": # exit the programm
@@ -243,7 +244,7 @@ elif i_nr == "1": # create a project
         print("press 'l' to load the project:")
         print("press 'c' to create another project:") # while i_abfrage = c
 
-        i_abfrage=input()  
+        i_abfrage=input()
     if (i_abfrage.lower() == "r"): # after creating a project, the py script starts against
         os.system("python3 pta.py")
     elif (i_abfrage.lower() == "l"):
@@ -271,9 +272,9 @@ elif i_nr == "1": # create a project
         elif i_nr == "2": # nmap only
             run_nmap()
         elif (i_nr != "0" or "1" or "2"):
-            print("enter a valid value!") 
+            print("enter a valid value!")
     elif (i_abfrage.lower() != "r" or "l" or "c"):
-        print("enter a valid value!") 
+        print("enter a valid value!")
 ######################################################################
 elif i_nr == "2": # load a project
     clrs()
@@ -316,7 +317,7 @@ elif i_nr == "2": # load a project
     elif i_nr == "2": # nmap only
         run_nmap()
     elif (i_nr != "0" or "1" or "2"):
-        print("enter a valid value!") 
+        print("enter a valid value!")
 ######################################################################
 elif i_nr == "3": # delete a project
     i_abfrage="d"# so that the program can enter the while loop once.
@@ -351,12 +352,12 @@ elif i_nr == "3": # delete a project
         print("")
         print("press 'r' to return main menu:")
         print("press 'd' to delete another project:") # it is spring back to the while loop
-       
+
         i_abfrage=input()
     if (i_abfrage.lower() == "r"): # to go back in the menu
         os.system("python3 pta.py")
     elif (i_abfrage.lower() != "r" and i_abfrage.lower() !=  "d"):
-        print("enter a valid value!")  
+        print("enter a valid value!")
 ######################################################################
 elif i_nr == "4": # the database is deleted and the modules are reloaded
     clrs()
@@ -367,7 +368,7 @@ elif i_nr == "4": # the database is deleted and the modules are reloaded
     print("press 'y' to confirm deletion: ")
     i_load=input()
     while (i_load != "y"):
-        print("enter a valid value!") 
+        print("enter a valid value!")
         i_load=input()
     if (i_load.lower() == "y"):
         os.remove("pta.sqlite")
@@ -375,4 +376,4 @@ elif i_nr == "4": # the database is deleted and the modules are reloaded
 ######################################################################
 elif i_nr != "1" or "2" or "3" or "4": # if you give an false input, programm start new
     os.system("python3 pta.py")
-######################################################################    
+######################################################################

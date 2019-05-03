@@ -31,17 +31,13 @@ except:
         pass
 
 if (pre != ""):
-    os.system("wpscan " + pre + "://" + hostname + ":" + port + " " + wordl +  " -f json -o wpscan_" + sid + ".txt")
+    os.system("wpscan " + pre + "://" + hostname + ":" + port + " " + wordl +  " -f json -o wpscan_" + sid)
 
-    with open("wpscan_" + sid + ".txt", 'r') as file_in:
+    with open("wpscan_" + sid, 'r') as file_in:
         f = open(outf, 'w')
-        for x in file_in:
-            if(x[0:3] == "==>"):
-                # dir
-                f.write(x[15:-1] + ";dir\n")
-            elif(x[0:3] == "+ h"):
-                #file
-                f.write(x[2:-1] + ";file\n")
+        data = json.load(file_in)
+        for x in data['interesting_findings']:
+            f.write(x + "\n")
 
         f.close()
-    os.remove("wpscan_" + sid + ".txt")
+    #os.remove("wpscan_" + sid)
