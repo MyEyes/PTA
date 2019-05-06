@@ -10,4 +10,7 @@ modules.cfg:
 - example:
   nikto<#>web<#>7<#>nikto -Display V -o tmp.csv -port $port -Format csv -Tuning 9 -h $ip<#>,
 
+# todo
+- maybe 100 columns, or no sqlite?!
+- first execute commands from modules.cfg, and then filter the findings with python scripts for no .csv files
 
