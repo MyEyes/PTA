@@ -1,0 +1,5 @@
+zum testen im terminal
+wpscan --url http://ibency.de --enumerate -o lol.txt
+
+für modules config
+wpscan --url $ip --enumerate -o $out
