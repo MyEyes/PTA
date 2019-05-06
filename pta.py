@@ -105,7 +105,7 @@ def run_cmd(mid, hostname, port):
 
     cmd = _mod[mid][3].replace("$ip", hostname).replace("$port", port).replace("$out", "./projects/" + proj[1] + "/" + _mod[mid][0] + "." + _mod[mid][2])
     if settings[2]=="1":
-        cmd += " > /dev/null" 
+        cmd += " > /dev/null"
     os.system(cmd)
 #--------------------------------------------------------------------#
 def working():
@@ -127,6 +127,11 @@ def working():
         # this row is completed! mark it in the status column
         c.execute("UPDATE r_nmap SET status = 1 WHERE id=" + str(row[0]) + ";")
         conn.commit()
+#--------------------------------------------------------------------#
+def create_r(name):
+    global _mod
+    
+
 #--------------------------------------------------------------------#
 # main programm starts here!
 clrs()
