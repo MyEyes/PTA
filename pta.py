@@ -103,7 +103,7 @@ def run_cmd(mid, hostname, port):
     global proj
     global _mod
 
-    os.system(_mod[mid][3].replace("$ip", hostname).replace("$port", port).replace("$out", "./projects/" + proj[1] + "/" + _mod[mid][0] + "." + _mod[mid][2]))
+    os.system(_mod[mid][3].replace("$ip", hostname).replace("$port", port).replace("$out", "./projects/" + proj[1] + "/" + _mod[mid][0] + "." + _mod[mid][2]) + " > /dev/null" if settings[2]=="1" else '')
 #--------------------------------------------------------------------#
 def working():
     global conn
