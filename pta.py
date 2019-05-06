@@ -269,7 +269,8 @@ elif i_nr == "3": # delete a project
 
         i_nr = input("projectname: ") # choose a projekt to delete
 
-        sql = "DELETE FROM project WHERE name='" + i_nr + "'"
+
+        sql = "DELETE FROM project WHERE name='" + rows[int(i_nr)][1] + "';"
         c = conn.cursor()
         c.execute(sql)
         conn.commit()
