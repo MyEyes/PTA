@@ -103,7 +103,10 @@ def run_cmd(mid, hostname, port):
     global proj
     global _mod
 
-    os.system(_mod[mid][3].replace("$ip", hostname).replace("$port", port).replace("$out", "./projects/" + proj[1] + "/" + _mod[mid][0] + "." + _mod[mid][2]) + " > /dev/null" if settings[2]=="1" else '')
+    cmd = _mod[mid][3].replace("$ip", hostname).replace("$port", port).replace("$out", "./projects/" + proj[1] + "/" + _mod[mid][0] + "." + _mod[mid][2])
+    if settings[2]=="1":
+        cmd += " > /dev/null" 
+    os.system(cmd)
 #--------------------------------------------------------------------#
 def working():
     global conn
@@ -274,6 +277,7 @@ elif i_nr == "3": # delete a project
         c = conn.cursor()
         c.execute(sql)
         conn.commit()
+        shutil.rmtree("./projects/" + rows[int(i_nr)][1] + "/")
 
         clrs()
         p_logo()
