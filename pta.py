@@ -36,34 +36,18 @@ def p_logo(): # the logo was defined here
     print(colored(" ▀                 ▀       ▀         ▀ \n", "red"))
 #--------------------------------------------------------------------#
 def create_p(name, hosts, ports, prots, http_s): # function to create a project
-    with open('projects.csv', 'a') as f:
-        f.write(name + ";" + hosts + ";" + ports + ";" + prots + ";" + http_s + "\n")
+    c = conn.cursor()
+    c.execute("INSERT INTO project  VALUES (NULL, '" + name + "', '" + hosts + "', '" + ports + "', '" + prots + "', '" + http_s + "');")
+    conn.commit()
     os.makedirs("./projects/" + name)
 #--------------------------------------------------------------------#
-def sqll_create_table(name, n): # function to create a sql database
-    global data
-    global conn
-
-    c = conn.cursor()
-    cmd = "CREATE TABLE 'r_" + name + "' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, 'pid'  INTEGER, 'datetime' TEXT"
-
-    for i in range(n):
-        cmd += ", '" + str(i) + "'  TEXT"
-
-    cmd += ");"
-    c.execute(cmd)
-    conn.commit()
-#--------------------------------------------------------------------#
 def load_proj(proj_n): # function to load a project
+    global conn
     global proj
-    with open('projects.csv') as csvfile:
-        projects = csv.reader(csvfile, delimiter=';')
-        i=0
-        for row in projects:
-            if(i==int(proj_n)):
-                proj = row
-                break
-            i+=1
+    c = conn.cursor()
+    c.execute("SELECT * FROM project;")
+    rows = c.fetchall()
+    proj = rows[int(proj_n)]
 
     clrs()
     p_logo()
@@ -92,58 +76,50 @@ def load_proj(proj_n): # function to load a project
     elif (i_abfrage.lower() != "r" or "l" or "c"):
         print("enter a valid value!")
 #--------------------------------------------------------------------#
-def sqll_ins(table, arr): #
-    global conn
-    cmd = "INSERT INTO " + table + " VALUES (NULL, " + str(proj[0]) + ", datetime('now', 'localtime')"
-    for entr in arr:
-        cmd = cmd + ", '" + entr + "'"
-    cmd = cmd + ");"
-
-    c = conn.cursor()
-    c.execute(cmd)
-    conn.commit()
-#--------------------------------------------------------------------#
 def run_nmap(): # function to run nmap scan
     global proj
+    global connect
     global settings
 
+    c = conn.cursor()
     nm = nmap.PortScanner() # init
-    nm.scan(hosts=proj[1], ports=proj[2], arguments=settings[int(proj[3])])
+    nm.scan(hosts=proj[2], ports=proj[3], arguments=settings[int(proj[4])])
 
     iternmcsv = iter(nm.csv().splitlines())
     next(iternmcsv)
+    for row in iternmcsv:
+        cmd = "INSERT INTO r_nmap VALUES (NULL, " + str(proj[0]) + ", datetime('now', 'localtime')"
+        for entr in row.split(';'):
+            cmd = cmd + ", '" + entr + "'"
+        if(row.split(';')[6] == "open"):
+            cmd = cmd + ", 0);"
+        else:
+            cmd = cmd + ", 1);"
+        c.execute(cmd)
 
-    with open("./projects/" + proj[0] + "/nmap.csv", 'a') as f:
-        for row in iternmcsv:
-            lol=str(datetime.now())  + ";"
-            lol+=row
-            if(row.split(';')[6] == "open"):
-                lol += "; 0"
-            else:
-                lol += "; 1"
-            lol+="\n"
-            f.write(lol)
+    conn.commit()
 #--------------------------------------------------------------------#
 def run_cmd(mid, hostname, port):
     global proj
     global _mod
 
-    os.system(_mod[mid][3].replace("$ip", hostname).replace("$port", port).replace("$out", "./projects/" + proj[0] + "/" + _mod[mid][0] + "." + _mod[mid][3]))
+    os.system(_mod[mid][3].replace("$ip", hostname).replace("$port", port).replace("$out", "./projects/" + proj[1] + "/" + _mod[mid][0] + "." + _mod[mid][2]))
 #--------------------------------------------------------------------#
 def working():
+    global conn
     global proj
     global _mod
 
-    with open("./projects/" + proj[0] + "/nmap.csv", 'a') as f:
-        projects = csv.reader(f, delimiter=';')
-        for row in rows:
-            print(row)
-            input()
-            i=0
-            for _module in _mod:
-                if(row[8] == _module[1]):
-                    run_cmd(i, row[4], row[7])
-                i += 1
+    c = conn.cursor()
+    c.execute("SELECT * FROM r_nmap WHERE pid=" + str(proj[0]) + " AND status=0;")
+    rows = c.fetchall()
+    for row in rows:
+        print(row)
+        i=0
+        for _module in _mod:
+            if(row[8] == _module[1]):
+                run_cmd(i, row[4], row[7])
+            i += 1
 
         # this row is completed! mark it in the status column
         c.execute("UPDATE r_nmap SET status = 1 WHERE id=" + str(row[0]) + ";")
@@ -156,7 +132,7 @@ p_logo()
 #---- LOAD modules.cfg begin----#
 with open('modules.cfg') as fp:
     for row in fp:
-        _mod.append(row.split('<#>'))
+        _mod.append(row[:-1].split('<#>'))
 
 with open('settings.cfg') as fp:
     i=0
@@ -164,11 +140,41 @@ with open('settings.cfg') as fp:
         settings[i] = str(row[:-1])
         i+=1
 #---- LOAD modules.cfg end----#
-if not os.path.exists("./projects.csv"):
-    open("projects.csv", 'a').close()
 
 if not os.path.exists("./projects/"):
     os.mkdir("./projects/")
+
+if os.path.exists("./pta.sqlite"): # creating sql database
+    conn = sqlite3.connect('pta.sqlite')
+else:
+    sqlite3.connect('pta.sqlite')   # creating sql database
+    conn = sqlite3.connect("./pta.sqlite")
+    c = conn.cursor()
+    c.execute("CREATE TABLE 'project' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"\
+        "'name'  TEXT NOT NULL UNIQUE, "\
+        "'hosts' TEXT, "\
+        "'ports' TEXT, "\
+        "'prots' TEXT, "\
+        "'http_s');")
+    c.execute("CREATE TABLE 'r_nmap' ('id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"\
+        "'pid'  INTEGER, "\
+        "'datetime'  TEXT, "\
+        "'host'  TEXT, "\
+        "'hostname'  TEXT, "\
+        "'hostname_type'  TEXT, "\
+        "'protocol' TEXT, "\
+        "'port' TEXT, "\
+        "'name' TEXT,"\
+        "'state' TEXT,"\
+        "'product' TEXT,"\
+        "'extrainfo' TEXT,"\
+        "'reason' TEXT,"\
+        "'version' TEXT,"\
+        "'conf' TEXT,"\
+        "'cpe' TEXT,"\
+        "'status' INTEGER DEFAULT 0);")
+
+    conn.commit()
 
 print("main menu:")
 print("------------------------------------------")
@@ -218,8 +224,9 @@ elif i_nr == "1": # create a project
     if (i_abfrage.lower() == "r"): # after creating a project, the py script starts against
         os.system("python3 pta.py")
     elif (i_abfrage.lower() == "l"):
-        num_lines = sum(1 for line in open("projects.csv"))
-        load_proj(str(int(num_lines-1))) # load project created above
+        c = conn.cursor()
+        c.execute("SELECT COUNT(*) FROM project;")
+        load_proj(str(int(c.fetchone()[0])-1)) # load project created above
 
 ######################################################################
 elif i_nr == "2": # load a project
@@ -230,11 +237,12 @@ elif i_nr == "2": # load a project
     print("which project would you like to load?")
     print("")
     i=0
-    with open('projects.csv') as csvfile:
-        projects = csv.reader(csvfile, delimiter=';')
-        for row in projects:
-            print(str(i) + "     : " + row[0])
-            i = i + 1
+    c = conn.cursor()
+    c.execute("SELECT * FROM project")
+    rows = c.fetchall()
+    for row in rows:
+        print(str(i) + "     : " + row[1])
+        i = i + 1
 
     print("")
     i_proj  = input("projectname: ")
@@ -293,7 +301,7 @@ elif i_nr == "4": # the database is deleted and the modules are reloaded
         print("enter a valid value!")
         i_load=input()
     if (i_load.lower() == "y"):
-        os.remove("projects.csv")
+        os.remove("pta.sqlite")
         shutil.rmtree("./projects")
         os.system("python3 pta.py")
 ######################################################################

@@ -1,0 +1,6 @@
+"Nikto - v2.1.6/2.1.5"
+"test.de","168.63.4.44","80","","","","Microsoft-IIS/10.0"
+"test.de","168.63.4.44","80","OSVDB-0","GET","/","Retrieved x-powered-by header: ARR/3.0"
+"test.de","168.63.4.44","80","OSVDB-0","GET","/","The anti-clickjacking X-Frame-Options header is not present."
+"test.de","168.63.4.44","80","OSVDB-0","GET","/","The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS"
+"test.de","168.63.4.44","80","OSVDB-0","GET","/","The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type"
