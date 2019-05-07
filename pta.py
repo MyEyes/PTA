@@ -92,14 +92,12 @@ def run_nmap(): # function to run nmap scan
     iternmcsv = iter(nm.csv().splitlines())
     next(iternmcsv)
     for row in iternmcsv:
-        cmd = "INSERT INTO r_nmap VALUES (NULL, " + str(proj[0]) + ", datetime('now', 'localtime')"
-        for entr in row.split(';'):
-            cmd = cmd + ", '" + entr + "'"
         if(row.split(';')[6] == "open"):
-            cmd = cmd + ", 0);"
-        else:
-            cmd = cmd + ", 1);"
-        c.execute(cmd)
+            cmd = "INSERT INTO r_nmap VALUES (NULL, " + str(proj[0]) + ", datetime('now', 'localtime')"
+            for entr in row.split(';'):
+                cmd += ", '" + entr + "'"
+            cmd += ", 0);"
+            c.execute(cmd)
 
     conn.commit()
 #--------------------------------------------------------------------#
@@ -142,8 +140,8 @@ def create_r():
     global proj
     global _mod
     for f in os.listdir("./projects/" + proj[1] + "/"):
-        print(f)
-        os.system("python3 ./extractors/e_" + f.split('_')[2].split('.')[0] + ".py " + proj[1] + " " + f)
+        if f != "findings.csv":
+            os.system("python3 ./extractors/e_" + f.split('_')[2].split('.')[0] + ".py " + proj[1] + " " + f)
 
 #--------------------------------------------------------------------#
 # main programm starts here!

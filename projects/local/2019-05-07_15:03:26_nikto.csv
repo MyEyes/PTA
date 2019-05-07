@@ -5,5 +5,3 @@
 "localhost","127.0.0.1","80","OSVDB-0","GET","/","The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type"
 "localhost","127.0.0.1","80","OSVDB-0","GET","/","Server may leak inodes via ETags, header found with file /, inode: 29cd, size: 585cc3a387a1a, mtime: gzip"
 "localhost","127.0.0.1","80","OSVDB-0","OPTIONS","/","Allowed HTTP Methods: GET, POST, OPTIONS, HEAD "
-"localhost","127.0.0.1","80","OSVDB-561","GET","/server-status","This reveals Apache information. Comment out appropriate line in the Apache conf file or restrict access to allowed sources."
-"localhost","127.0.0.1","80","OSVDB-3233","GET","/icons/README","Apache default file found."
