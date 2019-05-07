@@ -3,9 +3,9 @@ import sqlite3, os
 import hashlib, atexit
 import json
 import shutil
+import datetime
 from termcolor import colored
 from random import randint
-from datetime import datetime
 #--------------------------------------------------------------------#
 # GLOBALS
 conn        = None
@@ -51,6 +51,7 @@ def load_proj(proj_n): # function to load a project
 
     clrs()
     p_logo()
+
     print("load project")
     print("------------------------------------------")
     print("project: " + proj[1] + " loaded")
@@ -103,10 +104,16 @@ def run_cmd(mid, hostname, port):
     global proj
     global _mod
 
-    cmd = _mod[mid][3].replace("$ip", hostname).replace("$port", port).replace("$out", "./projects/" + proj[1] + "/" + _mod[mid][0] + "." + _mod[mid][2])
+    actualdtime = str(datetime.datetime.now())[:-7].replace(' ', '_')
+
+    cmd = _mod[mid][3].replace("$ip", hostname).replace("$port", port).replace("$out", "./projects/" + proj[1] + "/" + actualdtime + "_" + _mod[mid][0] + "." + _mod[mid][2])
+
     if settings[2]=="1":
         cmd += " > /dev/null"
+
+    print("[+]" + _mod[mid][0] + " is running!")
     os.system(cmd)
+    print("[+]" + _mod[mid][0] + " has finished!")
 #--------------------------------------------------------------------#
 def working():
     global conn
@@ -128,9 +135,11 @@ def working():
         c.execute("UPDATE r_nmap SET status = 1 WHERE id=" + str(row[0]) + ";")
         conn.commit()
 #--------------------------------------------------------------------#
-def create_r(name):
+def create_r():
+    global proj
     global _mod
-    
+    for f in os.listdir("./projects/" + proj[1] + "/"):
+        print(f)
 
 #--------------------------------------------------------------------#
 # main programm starts here!
