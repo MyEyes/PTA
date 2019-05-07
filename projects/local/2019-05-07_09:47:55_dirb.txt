@@ -1,0 +1,35 @@
+
+-----------------
+DIRB v2.22    
+By The Dark Raver
+-----------------
+
+OUTPUT_FILE: lol.txt
+START_TIME: Tue May  7 10:30:20 2019
+URL_BASE: https://test.de/
+WORDLIST_FILES: /usr/share/wordlists/dirb/small.txt
+OPTION: Fine tunning of NOT_FOUND detection
+
+-----------------
+
+GENERATED WORDS: 959
+
+---- Scanning URL: https://test.de/ ----
++ https://test.de/Admin (CODE:301|SIZE:0)
++ https://test.de/administration (CODE:301|SIZE:0)
++ https://test.de/cvs (CODE:301|SIZE:0)
++ https://test.de/extranet (CODE:301|SIZE:0)
++ https://test.de/log (CODE:301|SIZE:0)
++ https://test.de/logs (CODE:301|SIZE:0)
++ https://test.de/lost%2Bfound (CODE:301|SIZE:0)
++ https://test.de/pages (CODE:301|SIZE:0)
++ https://test.de/phpmyadmin (CODE:301|SIZE:0)
++ https://test.de/servlet (CODE:301|SIZE:0)
++ https://test.de/servlets (CODE:301|SIZE:0)
++ https://test.de/sources (CODE:301|SIZE:0)
++ https://test.de/statistics (CODE:301|SIZE:0)
++ https://test.de/stats (CODE:301|SIZE:0)
+
+-----------------
+END_TIME: Tue May  7 10:30:52 2019
+DOWNLOADED: 959 - FOUND: 14

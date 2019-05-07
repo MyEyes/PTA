@@ -52,6 +52,9 @@ def load_proj(proj_n): # function to load a project
     clrs()
     p_logo()
 
+    create_r()
+    input()
+
     print("load project")
     print("------------------------------------------")
     print("project: " + proj[1] + " loaded")
@@ -139,7 +142,7 @@ def create_r():
     global proj
     global _mod
     for f in os.listdir("./projects/" + proj[1] + "/"):
-        print(f)
+        print(f.split('_')[2].split('.')[0])
 
 #--------------------------------------------------------------------#
 # main programm starts here!
