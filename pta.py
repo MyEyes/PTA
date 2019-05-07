@@ -52,9 +52,6 @@ def load_proj(proj_n): # function to load a project
     clrs()
     p_logo()
 
-    create_r()
-    input()
-
     print("load project")
     print("------------------------------------------")
     print("project: " + proj[1] + " loaded")
@@ -64,6 +61,7 @@ def load_proj(proj_n): # function to load a project
     print("0     : scan all")
     print("1     : resume")
     print("2     : nmap only")
+    print("3     : create report")
     print("------------------------------------------")
     i_nr = input("option: ") # choose one option
 
@@ -75,7 +73,9 @@ def load_proj(proj_n): # function to load a project
         working()
     elif i_nr == "2": # nmap only
         run_nmap()
-    elif (i_nr != "0" or "1" or "2"):
+    elif i_nr == "3": # create report
+        create_r()
+    elif (i_nr != "0" or "1" or "2" or "3"):
         print("enter a valid value!")
     elif (i_abfrage.lower() != "r" or "l" or "c"):
         print("enter a valid value!")
@@ -142,7 +142,8 @@ def create_r():
     global proj
     global _mod
     for f in os.listdir("./projects/" + proj[1] + "/"):
-        print(f.split('_')[2].split('.')[0])
+        print(f)
+        os.system("python3 ./extractors/e_" + f.split('_')[2].split('.')[0] + ".py " + proj[1] + " " + f)
 
 #--------------------------------------------------------------------#
 # main programm starts here!
