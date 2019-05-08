@@ -6,6 +6,7 @@ import shutil
 import datetime
 from termcolor import colored
 from random import randint
+from logo import *
 #--------------------------------------------------------------------#
 # GLOBALS
 conn        = None
@@ -22,18 +23,7 @@ os.system('stty icanon')
 def clrs(): # this command clear the terminal
     os.system('clear')
 #--------------------------------------------------------------------#
-def p_logo(): # the logo was defined here
-    print(colored('PenTestAutomatizer\n', 'blue'))
-    print(colored(" ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄ ", "red"))
-    print(colored("▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌", "red"))
-    print(colored("▐░█▀▀▀▀▀▀▀█░▌ ▀▀▀▀█░█▀▀▀▀ ▐░█▀▀▀▀▀▀▀█░▌", "red"))
-    print(colored("▐░▌       ▐░▌     ▐░▌     ▐░▌       ▐░▌", "red"))
-    print(colored("▐░█▄▄▄▄▄▄▄█░▌     ▐░▌     ▐░█▄▄▄▄▄▄▄█░▌", "red"))
-    print(colored("▐░░░░░░░░░░░▌     ▐░▌     ▐░░░░░░░░░░░▌", "red"))
-    print(colored("▐░█▀▀▀▀▀▀▀▀▀      ▐░▌     ▐░█▀▀▀▀▀▀▀█░▌", "red"))
-    print(colored("▐░▌               ▐░▌     ▐░▌       ▐░▌", "red"))
-    print(colored("▐░▌               ▐░▌     ▐░▌       ▐░▌", "red"))
-    print(colored(" ▀                 ▀       ▀         ▀ \n", "red"))
+
 #--------------------------------------------------------------------#
 def create_p(name, hosts, ports, prots, http_s): # function to create a project
     c = conn.cursor()
@@ -50,7 +40,7 @@ def load_proj(proj_n): # function to load a project
     proj = rows[int(proj_n)]
 
     clrs()
-    p_logo()
+    print_logo()
 
     print("load project")
     print("------------------------------------------")
@@ -146,7 +136,7 @@ def create_r():
 #--------------------------------------------------------------------#
 # main programm starts here!
 clrs()
-p_logo()
+print_logo()
 
 #---- LOAD modules.cfg begin----#
 with open('modules.cfg') as fp:
